@@ -5,6 +5,7 @@ image:
 
 # -- Service account
 serviceAccount:
+  create: false           # Set false if SA already exists (e.g. created by eksctl)
   name: "r2egym-sa"
   irsaRoleArn: ""       # REQUIRED for S3 access via IRSA
 
@@ -14,7 +15,7 @@ job:
 
 # -- Tinker inference proxy (optional)
 proxy:
-  enabled: false
+  enabled: true
   image:
     repository: ""      # Can share main image or use separate proxy image
     tag: "latest"

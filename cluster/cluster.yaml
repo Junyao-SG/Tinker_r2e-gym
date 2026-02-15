@@ -1,6 +1,9 @@
 apiVersion: eksctl.io/v1alpha5
 kind: ClusterConfig
 
+autoModeConfig:
+  enabled: false
+
 metadata:
   name: tinker-r2egym
   region: us-east-1

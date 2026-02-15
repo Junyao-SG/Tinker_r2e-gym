@@ -35,7 +35,9 @@ deploy:
 	helm install $(RELEASE) helm/tinker-r2egym \
 		--namespace $(NAMESPACE) \
 		--set image.repository=$(ECR_REGISTRY)/$(ECR_REPO) \
-		--set image.tag=$(TAG)
+		--set image.tag=$(TAG) \
+		--set aws.s3.bucket=$(S3_BUCKET) \
+		--set aws.s3.prefix=$(S3_PREFIX)
 
 ## Deploy with Helm (training mode)
 deploy-training:
@@ -45,7 +47,9 @@ deploy-training:
 		--set image.repository=$(ECR_REGISTRY)/$(ECR_REPO) \
 		--set image.tag=$(TAG) \
 		--set proxy.image.repository=$(ECR_REGISTRY)/$(ECR_REPO)-proxy \
-		--set proxy.image.tag=$(TAG)
+		--set proxy.image.tag=$(TAG) \
+		--set aws.s3.bucket=$(S3_BUCKET) \
+		--set aws.s3.prefix=$(S3_PREFIX)
 
 ## Upgrade existing release
 upgrade:
@@ -85,7 +89,6 @@ results:
 ## Lint Helm chart
 lint:
 	helm lint helm/tinker-r2egym
-	helm lint helm/tinker-r2egym -f helm/tinker-r2egym/values-inference.yaml
 	helm lint helm/tinker-r2egym -f helm/tinker-r2egym/values-training.yaml
 
 ## Render Helm templates (dry-run)

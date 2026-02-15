@@ -17,7 +17,8 @@ ARG R2EGYM_REF=main
 RUN git clone https://github.com/R2E-Gym/R2E-Gym.git /app/r2e-gym && \
     cd /app/r2e-gym && git checkout ${R2EGYM_REF}
 RUN pip install --no-cache-dir uv && \
-    cd /app/r2e-gym && uv venv && uv sync && uv pip install -e .
+    cd /app/r2e-gym && uv venv && 
+    uv sync && uv pip install -e .
 
 # Install this repo's Tinker training code on top
 COPY src/ /app/tinker-r2egym/src/
