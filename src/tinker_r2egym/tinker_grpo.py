@@ -42,7 +42,7 @@ class GRPOConfig:
     """Configuration for GRPO training with Tinker."""
 
     # Model
-    model_name: str = "Qwen/Qwen3-8B"
+    model_name: str = "Qwen/Qwen3-30B-A3B"
     lora_rank: int = 32
     lora_alpha: int = 64
 

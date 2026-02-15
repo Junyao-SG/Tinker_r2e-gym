@@ -1,6 +1,6 @@
 # Tinker GRPO training config for SWE agents
 model:
-  model_name: "Qwen/Qwen3-8B"
+  model_name: "Qwen/Qwen3-30B-A3B"
   lora_rank: 32
   lora_alpha: 64
 

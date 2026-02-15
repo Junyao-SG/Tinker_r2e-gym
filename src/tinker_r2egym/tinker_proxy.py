@@ -6,10 +6,10 @@ so R2E-Gym's Agent can use it with --llm_name "openai/tinker" and LLM_BASE_URL.
 
 Usage:
     # Serve base model
-    python -m tinker_r2egym.tinker_proxy --model_name "Qwen/Qwen3-8B"
+    python -m tinker_r2egym.tinker_proxy --model_name "Qwen/Qwen3-30B-A3B"
 
     # Serve fine-tuned checkpoint
-    python -m tinker_r2egym.tinker_proxy --model_name "Qwen/Qwen3-8B" \
+    python -m tinker_r2egym.tinker_proxy --model_name "Qwen/Qwen3-30B-A3B" \
         --weights_path "tinker://run-id/weights/checkpoint-000050"
 
     # Then run R2E-Gym with:
@@ -173,7 +173,7 @@ def create_handler(server: TinkerInferenceServer):
 
 
 def main(
-    model_name: str = "Qwen/Qwen3-8B",
+    model_name: str = "Qwen/Qwen3-30B-A3B",
     weights_path: str = "",
     port: int = 8080,
 ):

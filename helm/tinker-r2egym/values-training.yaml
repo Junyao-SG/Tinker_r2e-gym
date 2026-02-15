@@ -5,11 +5,11 @@ job:
 proxy:
   enabled: true
   model:
-    name: "Qwen/Qwen3-8B"
+    name: "Qwen/Qwen3-30B-A3B"
     weightsPath: ""
 
 tinker:
-  model: "Qwen/Qwen3-8B"
+  model: "Qwen/Qwen3-30B-A3B"
   grpo:
     learningRate: 2.0e-5
     groupSize: 10

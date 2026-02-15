@@ -102,7 +102,7 @@ helm install tinker-r2egym helm/tinker-r2egym \
 | `image.repository` | `""` | ECR image URI (required) |
 | `image.tag` | `"latest"` | Image tag |
 | `proxy.enabled` | `false` | Deploy Tinker proxy |
-| `proxy.model.name` | `"Qwen/Qwen3-8B"` | Model for proxy |
+| `proxy.model.name` | `"Qwen/Qwen3-30B-A3B"` | Model for proxy |
 | `sandbox.nodeSelector` | `'{"role": "cpu-sandbox"}'` | Node selector for sandboxes |
 | `sandbox.resources.limits.cpu` | `"4"` | CPU limit per sandbox |
 | `sandbox.resources.limits.memory` | `"8Gi"` | Memory limit per sandbox |
@@ -116,7 +116,7 @@ Edit `configs/grpo.yaml`:
 
 | Parameter | Default | Description |
 |---|---|---|
-| `model.model_name` | `"Qwen/Qwen3-8B"` | Base model |
+| `model.model_name` | `"Qwen/Qwen3-30B-A3B"` | Base model |
 | `training.learning_rate` | `2.0e-5` | Learning rate |
 | `training.group_size` | `10` | Rollouts per task (GRPO) |
 | `training.num_steps` | `1000` | Training steps |

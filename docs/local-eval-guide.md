@@ -29,11 +29,11 @@ R2E-Gym's agent uses litellm (OpenAI-compatible). The proxy bridges Tinker's Sam
 
 ```bash
 # Serve a base model
-python -m tinker_r2egym.tinker_proxy --model_name "Qwen/Qwen3-8B"
+python -m tinker_r2egym.tinker_proxy --model_name "Qwen/Qwen3-30B-A3B"
 
 # Or serve a fine-tuned checkpoint after GRPO training
 python -m tinker_r2egym.tinker_proxy \
-  --model_name "Qwen/Qwen3-8B" \
+  --model_name "Qwen/Qwen3-30B-A3B" \
   --weights_path "tinker://run-id/weights/checkpoint-000050"
 ```
 
