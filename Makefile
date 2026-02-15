@@ -6,7 +6,7 @@ TAG          ?= latest
 R2EGYM_REF   ?= main
 RELEASE      ?= tinker-r2egym
 NAMESPACE    ?= default
-S3_BUCKET    ?=
+S3_BUCKET    ?= tinker-r2egym-$(shell date +%Y%m%d)
 S3_PREFIX    ?= r2egym-trajectories
 
 .PHONY: build push deploy upgrade uninstall logs exec results lint template create-bucket
