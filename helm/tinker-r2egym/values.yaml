@@ -16,9 +16,6 @@ job:
 # -- Tinker inference proxy (optional)
 proxy:
   enabled: true
-  image:
-    repository: ""      # Can share main image or use separate proxy image
-    tag: "latest"
   model:
     name: "Qwen/Qwen3-30B-A3B"
     weightsPath: ""
@@ -31,10 +28,6 @@ r2egym:
   samples: 4
   maxSteps: 40
   temperature: 0.2
-
-# -- Model for inference (ignored when proxy.enabled)
-model:
-  name: "gpt-4o"
 
 # -- Tinker GRPO training config
 tinker:

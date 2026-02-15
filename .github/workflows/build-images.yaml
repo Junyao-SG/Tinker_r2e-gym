@@ -38,7 +38,7 @@ jobs:
         id: ecr-login
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build and push orchestrator
+      - name: Build and push image
         env:
           ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
           R2EGYM_REF: ${{ github.event.inputs.r2egym_ref || 'main' }}
@@ -49,13 +49,3 @@ jobs:
             -t ${ECR_REGISTRY}/${ECR_REPO}:latest \
             .
           docker push ${ECR_REGISTRY}/${ECR_REPO} --all-tags
-
-      - name: Build and push proxy
-        env:
-          ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
-        run: |
-          docker build -f docker/Dockerfile.proxy \
-            -t ${ECR_REGISTRY}/${ECR_REPO}-proxy:${GITHUB_SHA::7} \
-            -t ${ECR_REGISTRY}/${ECR_REPO}-proxy:latest \
-            .
-          docker push ${ECR_REGISTRY}/${ECR_REPO}-proxy --all-tags

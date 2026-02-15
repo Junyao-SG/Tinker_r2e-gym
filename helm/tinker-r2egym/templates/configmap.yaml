@@ -10,9 +10,9 @@ data:
   R2EGYM_MAX_WORKERS: {{ .Values.r2egym.workers | quote }}
   R2EGYM_MAX_STEPS: {{ .Values.r2egym.maxSteps | quote }}
   R2EGYM_TEMPERATURE: {{ .Values.r2egym.temperature | quote }}
-  MODEL_NAME: {{ .Values.model.name | quote }}
   JOB_TYPE: {{ .Values.job.type | quote }}
   {{- if .Values.proxy.enabled }}
+  LLM_NAME: "openai/tinker"
   LLM_BASE_URL: "http://tinker-proxy:8080/v1"
   {{- end }}
   # S3 config

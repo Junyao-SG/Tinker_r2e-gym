@@ -58,8 +58,6 @@ helm install tinker-r2egym helm/tinker-r2egym \
   -f helm/tinker-r2egym/values-training.yaml \
   --set image.repository=$ECR_REGISTRY/tinker-r2egym \
   --set image.tag=latest \
-  --set proxy.image.repository=$ECR_REGISTRY/tinker-r2egym-proxy \
-  --set proxy.image.tag=latest \
   --set aws.s3.bucket=your-s3-bucket \
   --set aws.s3.prefix=r2egym-trajectories \
   --set serviceAccount.create=false

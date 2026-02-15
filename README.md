@@ -56,7 +56,7 @@ make exec
 python -m r2egym.agenthub.run.edit runagent_multiple \
   --dataset "R2E-Gym/SWE-Bench-Verified" \
   --split "test" --k 5 --max_workers 5 \
-  --backend kubernetes --llm_name "gpt-4o" \
+  --backend kubernetes --llm_name "openai/tinker" \
   --traj_dir /data/results
 ```
 
@@ -89,8 +89,7 @@ Deploys the Tinker proxy alongside the orchestrator. The proxy serves a Tinker m
 ```bash
 helm install tinker-r2egym helm/tinker-r2egym \
   -f helm/tinker-r2egym/values-training.yaml \
-  --set image.repository=$ECR_REGISTRY/tinker-r2egym \
-  --set proxy.image.repository=$ECR_REGISTRY/tinker-r2egym-proxy
+  --set image.repository=$ECR_REGISTRY/tinker-r2egym
 ```
 
 ## Configuration

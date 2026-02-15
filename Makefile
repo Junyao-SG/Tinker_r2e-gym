@@ -9,26 +9,22 @@ NAMESPACE    ?= default
 S3_BUCKET    ?= tinker-r2egym-$(shell date +%Y%m%d)
 S3_PREFIX    ?= r2egym-trajectories
 
-.PHONY: build push deploy upgrade uninstall logs exec results lint template create-bucket create-ecr
+.PHONY: build push deploy deploy-training upgrade uninstall logs exec results lint template create-bucket create-ecr
 
-## Create ECR repositories
+## Create ECR repository
 create-ecr:
 	aws ecr create-repository --repository-name $(ECR_REPO) --region $(REGION) 2>/dev/null || echo "$(ECR_REPO) already exists"
-	aws ecr create-repository --repository-name $(ECR_REPO)-proxy --region $(REGION) 2>/dev/null || echo "$(ECR_REPO)-proxy already exists"
 
-## Build Docker images
+## Build Docker image
 build:
 	docker build --platform linux/amd64 -f docker/Dockerfile.orchestrator \
 		--build-arg R2EGYM_REF=$(R2EGYM_REF) \
 		-t $(ECR_REGISTRY)/$(ECR_REPO):$(TAG) .
-	docker build --platform linux/amd64 -f docker/Dockerfile.proxy \
-		-t $(ECR_REGISTRY)/$(ECR_REPO)-proxy:$(TAG) .
 
-## Push images to ECR
+## Push image to ECR
 push:
 	aws ecr get-login-password --region $(REGION) | docker login --username AWS --password-stdin $(ECR_REGISTRY)
 	docker push $(ECR_REGISTRY)/$(ECR_REPO):$(TAG)
-	docker push $(ECR_REGISTRY)/$(ECR_REPO)-proxy:$(TAG)
 
 ## Deploy with Helm (inference mode)
 deploy:
@@ -46,8 +42,6 @@ deploy-training:
 		-f helm/tinker-r2egym/values-training.yaml \
 		--set image.repository=$(ECR_REGISTRY)/$(ECR_REPO) \
 		--set image.tag=$(TAG) \
-		--set proxy.image.repository=$(ECR_REGISTRY)/$(ECR_REPO)-proxy \
-		--set proxy.image.tag=$(TAG) \
 		--set aws.s3.bucket=$(S3_BUCKET) \
 		--set aws.s3.prefix=$(S3_PREFIX)
 
