@@ -96,7 +96,7 @@ class TinkerInferenceServer:
         result = future.result()
 
         # Decode the response
-        output_tokens = list(result.samples[0].tokens)
+        output_tokens = list(result.sequences[0].tokens)
         completion_text = self.tokenizer.decode(output_tokens, skip_special_tokens=True)
 
         # Format as OpenAI response
