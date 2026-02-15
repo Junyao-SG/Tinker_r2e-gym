@@ -32,7 +32,7 @@ def main(
     temperature: float = 0.0,
     backend: str = "kubernetes",
     scaffold: str = "r2egym",
-    use_fn_calling: bool = True,
+    use_fn_calling: bool = False,
     traj_dir: str = "/data/results",
     exp_name: str | None = None,
 ):
