@@ -1,0 +1,22 @@
+# Overrides for GRPO training mode
+job:
+  type: "training"
+
+proxy:
+  enabled: true
+  model:
+    name: "Qwen/Qwen3-8B"
+    weightsPath: ""
+
+tinker:
+  model: "Qwen/Qwen3-8B"
+  grpo:
+    learningRate: 2.0e-5
+    groupSize: 10
+    numSteps: 1000
+    checkpointEvery: 50
+
+r2egym:
+  workers: 20
+  maxSteps: 40
+  temperature: 1.0

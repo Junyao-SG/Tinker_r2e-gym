@@ -1,0 +1,44 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: tinker-r2egym
+  region: us-east-1
+  version: "1.32"
+
+iam:
+  withOIDC: true
+
+addons:
+  - name: vpc-cni
+    attachPolicyARNs:
+      - arn:aws:iam::policy/AmazonEKS_CNI_Policy
+  - name: coredns
+  - name: kube-proxy
+  - name: aws-ebs-csi-driver
+
+managedNodeGroups:
+  - name: system
+    instanceType: m5.xlarge
+    desiredCapacity: 1
+    minSize: 1
+    maxSize: 3
+    labels:
+      role: system
+    iam:
+      withAddonPolicies:
+        ebs: true
+        efs: true
+      attachPolicyARNs:
+        - arn:aws:iam::policy/AmazonS3FullAccess
+
+  - name: cpu-sandbox
+    instanceType: m5.4xlarge
+    desiredCapacity: 0
+    minSize: 0
+    maxSize: 20
+    labels:
+      role: cpu-sandbox
+    iam:
+      withAddonPolicies:
+        ebs: true

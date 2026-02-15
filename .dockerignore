@@ -1,0 +1,10 @@
+.git
+.env
+*.pyc
+__pycache__
+/cluster
+/helm
+/scripts
+/docs
+/.github
+/.venv

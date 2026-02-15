@@ -1,0 +1,75 @@
+# -- Container image
+image:
+  repository: ""        # REQUIRED: ECR URI (e.g. 123456789.dkr.ecr.us-east-1.amazonaws.com/tinker-r2egym)
+  tag: "latest"
+
+# -- Service account
+serviceAccount:
+  name: "r2egym-sa"
+  irsaRoleArn: ""       # REQUIRED for S3 access via IRSA
+
+# -- Job type: "inference" or "training"
+job:
+  type: "inference"
+
+# -- Tinker inference proxy (optional)
+proxy:
+  enabled: false
+  image:
+    repository: ""      # Can share main image or use separate proxy image
+    tag: "latest"
+  model:
+    name: "Qwen/Qwen3-8B"
+    weightsPath: ""
+
+# -- R2E-Gym agent config
+r2egym:
+  dataset: "R2E-Gym/R2E-Gym-Lite"
+  split: "train"
+  workers: 4
+  samples: 4
+  maxSteps: 40
+  temperature: 0.2
+
+# -- Model for inference (ignored when proxy.enabled)
+model:
+  name: "gpt-4o"
+
+# -- Tinker GRPO training config
+tinker:
+  model: "Qwen/Qwen3-8B"
+  grpo:
+    learningRate: 1.0e-6
+    groupSize: 4
+    numSteps: 1000
+    checkpointEvery: 50
+
+# -- Sandbox pod configuration
+sandbox:
+  namespace: "default"
+  imagePullSecrets: "dockerhub-pro"
+  nodeSelector: '{"role": "cpu-sandbox"}'
+  resources:
+    requests:
+      cpu: "2"
+      memory: "4Gi"
+    limits:
+      cpu: "4"
+      memory: "8Gi"
+
+# -- Orchestrator resources
+resources:
+  orchestrator:
+    requests:
+      cpu: "2"
+      memory: "4Gi"
+    limits:
+      cpu: "4"
+      memory: "8Gi"
+
+# -- AWS config
+aws:
+  region: "us-east-1"
+  s3:
+    bucket: ""           # REQUIRED for result storage
+    prefix: "r2egym-trajectories"
