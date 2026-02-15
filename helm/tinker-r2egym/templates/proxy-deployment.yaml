@@ -19,6 +19,10 @@ spec:
       serviceAccountName: {{ .Values.serviceAccount.name }}
       nodeSelector:
         role: system
+      tolerations:
+        - key: role
+          value: system
+          effect: NoSchedule
       containers:
         - name: proxy
           image: "{{ .Values.proxy.image.repository | default .Values.image.repository }}:{{ .Values.proxy.image.tag | default .Values.image.tag }}"

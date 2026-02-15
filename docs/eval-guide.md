@@ -82,9 +82,9 @@ Exec into the orchestrator pod:
 ORCH_POD=$(kubectl get pod -l app=tinker-r2egym-orchestrator -o jsonpath='{.items[0].metadata.name}')
 
 # Run R2E-Gym evaluation on SWE-bench Verified (5 tasks for smoke test)
-kubectl exec $ORCH_POD -- python -m r2egym.agenthub.run.edit runagent_multiple \
+kubectl exec $ORCH_POD -- python -m tinker_r2egym.run_eval \
   --dataset "R2E-Gym/SWE-Bench-Verified" \
-  --split "test" \
+  --split test \
   --k 5 \
   --max_workers 5 \
   --backend kubernetes \
@@ -92,9 +92,9 @@ kubectl exec $ORCH_POD -- python -m r2egym.agenthub.run.edit runagent_multiple \
   --traj_dir /data/results
 
 # Full eval (all tasks)
-kubectl exec $ORCH_POD -- python -m r2egym.agenthub.run.edit runagent_multiple \
+kubectl exec $ORCH_POD -- python -m tinker_r2egym.run_eval \
   --dataset "R2E-Gym/SWE-Bench-Verified" \
-  --split "test" \
+  --split test \
   --k 2294 \
   --max_workers 20 \
   --backend kubernetes \

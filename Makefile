@@ -9,14 +9,19 @@ NAMESPACE    ?= default
 S3_BUCKET    ?= tinker-r2egym-$(shell date +%Y%m%d)
 S3_PREFIX    ?= r2egym-trajectories
 
-.PHONY: build push deploy upgrade uninstall logs exec results lint template create-bucket
+.PHONY: build push deploy upgrade uninstall logs exec results lint template create-bucket create-ecr
+
+## Create ECR repositories
+create-ecr:
+	aws ecr create-repository --repository-name $(ECR_REPO) --region $(REGION) 2>/dev/null || echo "$(ECR_REPO) already exists"
+	aws ecr create-repository --repository-name $(ECR_REPO)-proxy --region $(REGION) 2>/dev/null || echo "$(ECR_REPO)-proxy already exists"
 
 ## Build Docker images
 build:
-	docker build -f docker/Dockerfile.orchestrator \
+	docker build --platform linux/amd64 -f docker/Dockerfile.orchestrator \
 		--build-arg R2EGYM_REF=$(R2EGYM_REF) \
 		-t $(ECR_REGISTRY)/$(ECR_REPO):$(TAG) .
-	docker build -f docker/Dockerfile.proxy \
+	docker build --platform linux/amd64 -f docker/Dockerfile.proxy \
 		-t $(ECR_REGISTRY)/$(ECR_REPO)-proxy:$(TAG) .
 
 ## Push images to ECR

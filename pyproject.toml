@@ -14,11 +14,13 @@ dependencies = [
     "datasets",
     "transformers",
     "python-dotenv",
+    "boto3",
 ]
 
 [project.scripts]
 tinker-grpo = "tinker_r2egym.tinker_grpo:main"
 tinker-proxy = "tinker_r2egym.tinker_proxy:main"
+tinker-eval = "tinker_r2egym.run_eval:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

@@ -18,6 +18,10 @@ spec:
       serviceAccountName: {{ .Values.serviceAccount.name }}
       nodeSelector:
         role: system
+      tolerations:
+        - key: role
+          value: system
+          effect: NoSchedule
       containers:
         - name: orchestrator
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

@@ -33,6 +33,7 @@ from transformers import AutoTokenizer
 
 from r2egym.agenthub.run.edit import runagent
 from r2egym.agenthub.trajectory import Trajectory
+from tinker_r2egym.s3_sync import S3Sync
 
 logger = logging.getLogger(__name__)
 
@@ -242,9 +243,13 @@ async def async_main(config: GRPOConfig):
     log_dir = Path(config.log_dir)
     log_dir.mkdir(parents=True, exist_ok=True)
 
+    # S3 sync for persistent storage
+    s3 = S3Sync()
+
     # Save config
     with open(log_dir / "config.json", "w") as f:
         json.dump(config.__dict__, f, indent=2)
+    s3.upload_file(log_dir / "config.json", base_dir=log_dir)
 
     # Initialize Tinker clients
     logger.info(f"Connecting to Tinker API for model: {config.model_name}")
@@ -313,6 +318,7 @@ async def async_main(config: GRPOConfig):
         # Save metrics incrementally
         with open(log_dir / "metrics.jsonl", "a") as f:
             f.write(json.dumps(step_metrics) + "\n")
+        s3.upload_file(log_dir / "metrics.jsonl", base_dir=log_dir)
 
         # Checkpoint
         if config.save_every > 0 and (step + 1) % config.save_every == 0:
@@ -326,6 +332,9 @@ async def async_main(config: GRPOConfig):
     # Final checkpoint
     logger.info("Saving final checkpoint")
     training_client.save_weights_and_get_sampling_client(name="final")
+
+    # Final S3 sync
+    s3.sync_dir(log_dir)
     logger.info("Training complete")
 
 
