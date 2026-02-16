@@ -17,6 +17,11 @@ iam:
         namespace: default
       attachPolicyARNs:
         - arn:aws:iam::aws:policy/AmazonS3FullAccess
+    - metadata:
+        name: cluster-autoscaler
+        namespace: kube-system
+      wellKnownPolicies:
+        autoScaler: true
 
 addons:
   - name: vpc-cni

@@ -9,7 +9,9 @@ NAMESPACE    ?= default
 S3_BUCKET    ?= r2e-tinker-$(shell date +%Y%m%d)
 S3_PREFIX    ?= r2egym-trajectories
 
-.PHONY: build push deploy deploy-training upgrade uninstall logs exec results lint template create-bucket create-ecr
+CLUSTER      ?= r2e-tinker
+
+.PHONY: build push deploy deploy-training upgrade uninstall logs exec results lint template create-bucket create-ecr install-autoscaler
 
 ## Create ECR repository
 create-ecr:
@@ -79,6 +81,20 @@ results:
 	@test -n "$(S3_BUCKET)" || (echo "Set S3_BUCKET env var" && exit 1)
 	mkdir -p ./results
 	aws s3 sync "s3://$(S3_BUCKET)/$(S3_PREFIX)/" ./results/
+
+## Install cluster autoscaler (requires IRSA service account from cluster.yaml)
+install-autoscaler:
+	helm repo add autoscaler https://kubernetes.github.io/autoscaler 2>/dev/null || true
+	helm repo update autoscaler
+	helm install cluster-autoscaler autoscaler/cluster-autoscaler \
+		--namespace kube-system \
+		--set autoDiscovery.clusterName=$(CLUSTER) \
+		--set awsRegion=$(REGION) \
+		--set rbac.serviceAccount.create=false \
+		--set rbac.serviceAccount.name=cluster-autoscaler \
+		--set extraArgs.balance-similar-node-groups=true \
+		--set extraArgs.skip-nodes-with-system-pods=false \
+		--set extraArgs.scale-down-unneeded-time=5m
 
 ## Lint Helm chart
 lint:
