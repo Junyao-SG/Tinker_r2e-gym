@@ -20,7 +20,7 @@ rollout:
   max_workers: 20
   backend: "kubernetes"  # "docker" for local, "kubernetes" for EKS
   scaffold: "r2egym"
-  use_fn_calling: true
+  use_fn_calling: false   # Open-weight models use XML tool format
 
 output:
   log_dir: "/data/training/"

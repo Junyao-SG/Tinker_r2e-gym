@@ -26,7 +26,7 @@ addons:
 
 managedNodeGroups:
   - name: system
-    instanceType: m5.xlarge
+    instanceType: m5.large
     desiredCapacity: 1
     minSize: 1
     maxSize: 3
@@ -42,8 +42,13 @@ managedNodeGroups:
         efs: true
 
   - name: cpu-sandbox
-    instanceType: m5.4xlarge
-    desiredCapacity: 1
+    instanceTypes:
+      - c5.2xlarge
+      - c5a.2xlarge
+      - m5.2xlarge
+      - m5a.2xlarge
+    spot: true
+    desiredCapacity: 0
     minSize: 0
     maxSize: 20
     labels:

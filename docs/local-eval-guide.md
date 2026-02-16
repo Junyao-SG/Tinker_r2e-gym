@@ -11,9 +11,16 @@ Run R2E-Gym evaluation on your local machine using Docker containers and Tinker 
 ## 1. Install R2E-Gym
 
 ```bash
-cd r2e-gym
+git clone https://github.com/R2E-Gym/R2E-Gym.git
+cd R2E-Gym
 uv venv && source .venv/bin/activate
 uv sync && uv pip install -e .
+```
+
+Install this repo's code and the Tinker SDK into the same venv:
+
+```bash
+pip install -e /path/to/Tinker_r2e-gym
 pip install tinker
 ```
 
@@ -25,7 +32,7 @@ export TINKER_API_KEY=your-tinker-key
 
 ## 3. Start the Tinker Inference Proxy
 
-R2E-Gym's agent uses litellm (OpenAI-compatible). The proxy bridges Tinker's SamplingClient to an OpenAI-compatible endpoint.
+R2E-Gym uses LiteLLM internally (OpenAI-compatible). The proxy bridges Tinker's SamplingClient to an OpenAI-compatible `/v1/chat/completions` endpoint.
 
 ```bash
 # Serve a base model
@@ -71,7 +78,7 @@ python src/r2egym/agenthub/run/edit.py runagent_multiple \
   --use_fn_calling False
 ```
 
-Note: `--use_fn_calling False` because open-weight models (Qwen, Llama) use R2E-Gym's XML-based tool format instead of OpenAI function calling.
+> `--use_fn_calling False` because open-weight models (Qwen, Llama) use R2E-Gym's XML-based tool format instead of OpenAI function calling.
 
 ### Key flags
 
@@ -80,7 +87,7 @@ Note: `--use_fn_calling False` because open-weight models (Qwen, Llama) use R2E-
 | `--backend docker` | Use local Docker (vs `kubernetes` for EKS) |
 | `--k 5` | Number of tasks to run |
 | `--max_workers 2` | Parallel containers (limited by your machine's CPU/RAM) |
-| `--llm_name "openai/tinker"` | Route through Tinker proxy |
+| `--llm_name "openai/tinker"` | Route through Tinker proxy via LiteLLM |
 | `--temperature 0` | Greedy decoding for eval |
 | `--max_steps 40` | Max agent steps per task |
 | `--traj_dir ./results` | Where to save trajectory JSONL |
@@ -92,7 +99,6 @@ Note: `--use_fn_calling False` because open-weight models (Qwen, Llama) use R2E-
 Trajectories are saved as JSONL in `--traj_dir`:
 
 ```bash
-# Count resolved tasks
 python -c "
 import json
 with open('results/<exp_name>.jsonl') as f:
@@ -102,16 +108,9 @@ print(f'Resolved: {resolved}/{len(trajs)} ({resolved/len(trajs):.1%})')
 "
 ```
 
-Visualize trajectories with the built-in Flask app:
-
-```bash
-uv run app/app.py
-# Open http://localhost:5000
-```
-
 ## 6. Resource Requirements
 
-Each sandbox container uses ~300-500MB disk + ~1 CPU + ~1GB RAM. Tinker handles GPU inference remotely — your local machine only needs CPU for the sandbox containers.
+Each sandbox container uses ~300–500MB disk + ~1 CPU + ~1GB RAM. Tinker handles GPU inference remotely — your local machine only needs CPU for the sandbox containers.
 
 | `max_workers` | Recommended machine |
 |---|---|
