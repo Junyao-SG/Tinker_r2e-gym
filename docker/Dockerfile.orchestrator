@@ -28,10 +28,10 @@ ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
 COPY src/ /app/r2e-tinker/src/
 COPY configs/ /app/r2e-tinker/configs/
 COPY pyproject.toml /app/r2e-tinker/
-RUN pip install --no-cache-dir -e /app/r2e-tinker
+RUN uv pip install --no-cache -e /app/r2e-tinker
 
 # Install Tinker SDK into the venv
-RUN pip install --no-cache-dir tinker
+RUN uv pip install --no-cache tinker
 
 WORKDIR /app/r2e-gym
 

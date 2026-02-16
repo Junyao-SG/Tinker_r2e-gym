@@ -32,10 +32,6 @@ managedNodeGroups:
     maxSize: 3
     labels:
       role: system
-    taints:
-      - key: role
-        value: system
-        effect: NoSchedule
     iam:
       withAddonPolicies:
         ebs: true

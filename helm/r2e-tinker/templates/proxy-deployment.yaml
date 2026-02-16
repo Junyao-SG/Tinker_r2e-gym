@@ -19,10 +19,6 @@ spec:
       serviceAccountName: {{ .Values.serviceAccount.name }}
       nodeSelector:
         role: system
-      tolerations:
-        - key: role
-          value: system
-          effect: NoSchedule
       containers:
         - name: proxy
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -66,9 +62,9 @@ spec:
                   optional: true
           resources:
             requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
               cpu: "1"
               memory: "2Gi"
-            limits:
-              cpu: "2"
-              memory: "4Gi"
 {{- end }}
