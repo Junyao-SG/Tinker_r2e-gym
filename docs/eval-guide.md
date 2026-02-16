@@ -11,7 +11,7 @@ Step-by-step guide to deploy the cluster and run R2E-Gym evaluation.
 ## 1. Create the EKS Cluster
 
 ```bash
-eksctl create cluster -f cluster/cluster.yaml
+make create-cluster
 ```
 
 This provisions:
@@ -35,7 +35,7 @@ make build push
 ## 3. Create Secrets
 
 ```bash
-kubectl create secret generic tinker-credentials --from-env-file=.env
+make create-secrets
 ```
 
 ## 4. Deploy with Helm

@@ -48,7 +48,7 @@ managedNodeGroups:
       - c5a.2xlarge
       - m5.2xlarge
       - m5a.2xlarge
-    spot: true
+    spot: false
     desiredCapacity: 0
     minSize: 0
     maxSize: 20

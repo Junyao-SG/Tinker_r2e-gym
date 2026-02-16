@@ -27,7 +27,7 @@ A single Docker image contains both upstream R2E-Gym and this repo's Tinker code
 ### 1. Create the EKS cluster
 
 ```bash
-eksctl create cluster -f cluster/cluster.yaml
+make create-cluster
 ```
 
 ### 2. Create secrets
@@ -127,6 +127,8 @@ Edit [configs/grpo.yaml](configs/grpo.yaml):
 
 | Target | Description |
 |---|---|
+| `make create-cluster` | Create EKS cluster |
+| `make create-secrets` | Create K8s secrets from `.env` |
 | `make build` | Build Docker image |
 | `make push` | Push to ECR |
 | `make deploy` | Helm install (inference) |

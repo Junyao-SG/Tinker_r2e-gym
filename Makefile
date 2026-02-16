@@ -11,7 +11,15 @@ S3_PREFIX    ?= r2egym-trajectories
 
 CLUSTER      ?= r2e-tinker
 
-.PHONY: build push deploy deploy-training upgrade uninstall logs exec results lint template create-bucket create-ecr install-autoscaler teardown
+.PHONY: create-cluster create-secrets build push deploy deploy-training upgrade uninstall logs exec results lint template create-bucket create-ecr install-autoscaler teardown
+
+## Create EKS cluster
+create-cluster:
+	eksctl create cluster -f cluster/cluster.yaml
+
+## Create K8s secrets from .env file
+create-secrets:
+	kubectl create secret generic tinker-credentials --from-env-file=.env
 
 ## Create ECR repository
 create-ecr:

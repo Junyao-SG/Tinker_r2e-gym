@@ -28,7 +28,7 @@ import logging
 import re
 import time
 import uuid
-from http.server import HTTPServer, BaseHTTPRequestHandler
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Optional
 
 from dotenv import load_dotenv
@@ -193,31 +193,31 @@ def create_handler(server: TinkerInferenceServer):
 
     class Handler(BaseHTTPRequestHandler):
         def do_POST(self):
-            if self.path in ("/v1/chat/completions", "/chat/completions"):
-                content_length = int(self.headers["Content-Length"])
-                body = json.loads(self.rfile.read(content_length))
-
-                try:
-                    result = server.generate(
-                        messages=body.get("messages", []),
-                        temperature=body.get("temperature", 0.0),
-                        max_tokens=body.get("max_tokens", 4096),
-                        stop=body.get("stop"),
-                        tools=body.get("tools"),
-                    )
-                    self.send_response(200)
-                    self.send_header("Content-Type", "application/json")
-                    self.end_headers()
-                    self.wfile.write(json.dumps(result).encode())
-                except Exception as e:
-                    logger.error(f"Generation error: {e}")
-                    self.send_response(500)
-                    self.send_header("Content-Type", "application/json")
-                    self.end_headers()
-                    self.wfile.write(json.dumps({"error": str(e)}).encode())
-            else:
+            if self.path not in ("/v1/chat/completions", "/chat/completions"):
                 self.send_response(404)
                 self.end_headers()
+                return
+
+            try:
+                content_length = int(self.headers.get("Content-Length", 0))
+                body = json.loads(self.rfile.read(content_length))
+                result = server.generate(
+                    messages=body.get("messages", []),
+                    temperature=body.get("temperature", 0.0),
+                    max_tokens=body.get("max_tokens", 4096),
+                    stop=body.get("stop"),
+                    tools=body.get("tools"),
+                )
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps(result).encode())
+            except Exception as e:
+                logger.exception("Request handling error")
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": str(e)}).encode())
 
         def do_GET(self):
             if self.path in ("/v1/models", "/models"):
@@ -259,7 +259,7 @@ def main(
     )
 
     handler = create_handler(server)
-    httpd = HTTPServer(("0.0.0.0", port), handler)
+    httpd = ThreadingHTTPServer(("0.0.0.0", port), handler)
     logger.info(f"Tinker proxy listening on http://0.0.0.0:{port}")
     logger.info(f"Use with: LLM_BASE_URL=http://localhost:{port}/v1 --llm_name 'openai/gpt-tinker'")
     httpd.serve_forever()

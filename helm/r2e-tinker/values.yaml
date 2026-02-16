@@ -41,7 +41,7 @@ tinker:
 # -- Sandbox pod configuration
 sandbox:
   namespace: "default"
-  imagePullSecrets: "dockerhub-pro"
+  imagePullSecrets: ""
   nodeSelector: '{"karpenter.sh/nodepool": "bigcpu-standby"}'
   resources:
     requests:
