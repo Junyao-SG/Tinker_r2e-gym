@@ -20,8 +20,8 @@ uv sync && uv pip install -e .
 Install this repo's code and the Tinker SDK into the same venv:
 
 ```bash
-pip install -e /path/to/Tinker_r2e-gym
-pip install tinker
+uv pip install -e /path/to/Tinker_r2e-gym
+uv pip install tinker
 ```
 
 ## 2. Set API Key
@@ -48,13 +48,18 @@ The proxy starts at `http://localhost:8080`. Keep it running in a separate termi
 
 ## 4. Run Evaluation
 
+Run from the R2E-Gym directory (where `src/r2egym/` lives):
+
 ```bash
-# Smoke test — 5 tasks
+cd R2E-Gym
+
+# Smoke test — 2 tasks
+OPENAI_API_KEY=sk-placeholder \
 LLM_BASE_URL=http://localhost:8080/v1 \
 python src/r2egym/agenthub/run/edit.py runagent_multiple \
   --dataset "R2E-Gym/SWE-Bench-Verified" \
   --split "test" \
-  --k 5 \
+  --k 2 \
   --max_workers 2 \
   --backend docker \
   --llm_name "openai/tinker" \
@@ -64,6 +69,7 @@ python src/r2egym/agenthub/run/edit.py runagent_multiple \
   --use_fn_calling False
 
 # Full eval — all 2294 tasks
+OPENAI_API_KEY=sk-placeholder \
 LLM_BASE_URL=http://localhost:8080/v1 \
 python src/r2egym/agenthub/run/edit.py runagent_multiple \
   --dataset "R2E-Gym/SWE-Bench-Verified" \
