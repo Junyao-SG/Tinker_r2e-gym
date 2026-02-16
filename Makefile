@@ -11,7 +11,7 @@ S3_PREFIX    ?= r2egym-trajectories
 
 CLUSTER      ?= r2e-tinker
 
-.PHONY: build push deploy deploy-training upgrade uninstall logs exec results lint template create-bucket create-ecr install-autoscaler
+.PHONY: build push deploy deploy-training upgrade uninstall logs exec results lint template create-bucket create-ecr install-autoscaler teardown
 
 ## Create ECR repository
 create-ecr:
@@ -95,6 +95,12 @@ install-autoscaler:
 		--set extraArgs.balance-similar-node-groups=true \
 		--set extraArgs.skip-nodes-with-system-pods=false \
 		--set extraArgs.scale-down-unneeded-time=5m
+
+## Teardown: uninstall Helm release and delete EKS cluster
+teardown:
+	-helm uninstall $(RELEASE) --namespace $(NAMESPACE)
+	-helm uninstall cluster-autoscaler --namespace kube-system
+	eksctl delete cluster --name $(CLUSTER) --region $(REGION)
 
 ## Lint Helm chart
 lint:
