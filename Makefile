@@ -98,8 +98,8 @@ install-autoscaler:
 
 ## Teardown: uninstall Helm release and delete EKS cluster
 teardown:
-	-helm uninstall $(RELEASE) --namespace $(NAMESPACE)
-	-helm uninstall cluster-autoscaler --namespace kube-system
+	helm uninstall $(RELEASE) --namespace $(NAMESPACE)
+	helm uninstall cluster-autoscaler --namespace kube-system
 	eksctl delete cluster --name $(CLUSTER) --region $(REGION)
 
 ## Lint Helm chart
