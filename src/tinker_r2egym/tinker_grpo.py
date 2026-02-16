@@ -62,7 +62,7 @@ class GRPOConfig:
     max_workers: int = 20
     backend: str = "kubernetes"
     scaffold: str = "r2egym"
-    use_fn_calling: bool = False  # Open-weight models use XML tool format
+    use_fn_calling: bool = True  # Tinker proxy translates OpenAI tool calls to Qwen3 native format
 
     # Output
     log_dir: str = "/data/training/"
@@ -109,7 +109,7 @@ def collect_rollouts(
     results = []
 
     # Use the OpenAI-compatible proxy for rollouts (LLM_BASE_URL must be set)
-    llm_name = os.environ.get("LLM_NAME", "openai/tinker")
+    llm_name = os.environ.get("LLM_NAME", "openai/gpt-tinker")
 
     with concurrent.futures.ProcessPoolExecutor(max_workers=config.max_workers) as executor:
         future_to_ds = {

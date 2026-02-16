@@ -121,7 +121,7 @@ Edit [configs/grpo.yaml](configs/grpo.yaml):
 | `training.num_steps` | `1000` | Training steps |
 | `rollout.max_workers` | `20` | Parallel sandboxes |
 | `rollout.backend` | `"kubernetes"` | `kubernetes` or `docker` |
-| `rollout.use_fn_calling` | `false` | Use OpenAI function calling (false for open-weight models) |
+| `rollout.use_fn_calling` | `true` | Use OpenAI function calling (Tinker proxy translates to Qwen3 native format) |
 
 ## Makefile targets
 

@@ -7,7 +7,7 @@ Usage:
         --split test \
         --k 5 \
         --max_workers 5 \
-        --llm_name "openai/tinker" \
+        --llm_name "openai/gpt-tinker" \
         --traj_dir /data/results
 """
 
@@ -28,11 +28,11 @@ def main(
     k: int = 5,
     max_workers: int = 5,
     max_steps: int = 40,
-    llm_name: str = "openai/tinker",
+    llm_name: str = "openai/gpt-tinker",
     temperature: float = 0.0,
     backend: str = "kubernetes",
     scaffold: str = "r2egym",
-    use_fn_calling: bool = False,
+    use_fn_calling: bool = True,
     traj_dir: str = "/data/results",
     exp_name: str | None = None,
 ):

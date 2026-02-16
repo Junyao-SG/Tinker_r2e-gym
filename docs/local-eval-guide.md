@@ -61,11 +61,11 @@ python src/r2egym/agenthub/run/edit.py runagent_multiple \
   --k 2 \
   --max_workers 2 \
   --backend docker \
-  --llm_name "openai/tinker" \
+  --llm_name "openai/gpt-tinker" \
   --temperature 0 \
-  --max_steps 40 \
+  --max_steps 5 \
   --traj_dir ./results \
-  --use_fn_calling False
+  --use_fn_calling True
 
 # Full eval — all 2294 tasks
 LLM_BASE_URL=http://localhost:8080/v1 \
@@ -75,14 +75,14 @@ python src/r2egym/agenthub/run/edit.py runagent_multiple \
   --k 2294 \
   --max_workers 8 \
   --backend docker \
-  --llm_name "openai/tinker" \
+  --llm_name "openai/gpt-tinker" \
   --temperature 0 \
-  --max_steps 40 \
+  --max_steps 5 \
   --traj_dir ./results \
-  --use_fn_calling False
+  --use_fn_calling True
 ```
 
-> `--use_fn_calling False` because open-weight models (Qwen, Llama) use R2E-Gym's XML-based tool format instead of OpenAI function calling.
+> `--use_fn_calling True` because the Tinker proxy translates OpenAI function calling into Qwen3's native tool format automatically.
 
 ### Key flags
 
@@ -91,12 +91,12 @@ python src/r2egym/agenthub/run/edit.py runagent_multiple \
 | `--backend docker` | Use local Docker (vs `kubernetes` for EKS) |
 | `--k 5` | Number of tasks to run |
 | `--max_workers 2` | Parallel containers (limited by your machine's CPU/RAM) |
-| `--llm_name "openai/tinker"` | Route through Tinker proxy via LiteLLM |
+| `--llm_name "openai/gpt-tinker"` | Route through Tinker proxy via LiteLLM (name passes R2E-Gym's model gate) |
 | `--temperature 0` | Greedy decoding for eval |
 | `--max_steps 40` | Max agent steps per task |
 | `--traj_dir ./results` | Where to save trajectory JSONL |
 | `--scaffold r2egym` | Agent scaffold (`r2egym`, `openhands`, or `sweagent`) |
-| `--use_fn_calling False` | Use XML tool format (for open-weight models) |
+| `--use_fn_calling True` | Use OpenAI function calling (proxy translates to Qwen3 native format) |
 
 ## 5. Check Results
 

@@ -2,7 +2,11 @@
 Lightweight OpenAI-compatible proxy for Tinker's SamplingClient.
 
 Exposes Tinker model inference as an OpenAI /v1/chat/completions endpoint,
-so R2E-Gym's Agent can use it with --llm_name "openai/tinker" and LLM_BASE_URL.
+so R2E-Gym's Agent can use it with --llm_name "openai/gpt-tinker" and LLM_BASE_URL.
+
+Supports OpenAI function calling: accepts ``tools`` in the request body,
+formats them via Qwen3's chat template, and parses ``<tool_call>`` blocks
+from model output back into OpenAI ``tool_calls`` response format.
 
 Usage:
     # Serve base model
@@ -14,13 +18,14 @@ Usage:
 
     # Then run R2E-Gym with:
     LLM_BASE_URL=http://localhost:8080/v1 python src/r2egym/agenthub/run/edit.py runagent_multiple \
-        --llm_name "openai/tinker" --backend docker ...
+        --llm_name "openai/gpt-tinker" --use_fn_calling True --backend docker ...
 """
 
 from __future__ import annotations
 
 import json
 import logging
+import re
 import time
 import uuid
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -74,11 +79,24 @@ class TinkerInferenceServer:
         temperature: float = 0.0,
         max_tokens: int = 4096,
         stop: Optional[list[str]] = None,
+        tools: Optional[list[dict]] = None,
     ) -> dict:
-        """Generate a chat completion from messages."""
-        # Format messages into a single prompt using the tokenizer's chat template
+        """Generate a chat completion from messages.
+
+        When ``tools`` is provided (forwarded from the request body), they are
+        passed to the tokenizer's chat template so Qwen3 sees them in its
+        native Hermes format.  The model's ``<tool_call>`` output blocks are
+        then parsed back into OpenAI ``tool_calls`` response format.
+        """
+        # Format messages into a single prompt using the tokenizer's chat template.
+        # When tools are present, the tokenizer injects them in Qwen3's native format.
+        template_kwargs: dict = dict(
+            tokenize=False, add_generation_prompt=True,
+        )
+        if tools:
+            template_kwargs["tools"] = tools
         prompt_text = self.tokenizer.apply_chat_template(
-            messages, tokenize=False, add_generation_prompt=True
+            messages, **template_kwargs,
         )
         prompt_tokens = self.tokenizer.encode(prompt_text)
 
@@ -99,7 +117,18 @@ class TinkerInferenceServer:
         output_tokens = list(result.sequences[0].tokens)
         completion_text = self.tokenizer.decode(output_tokens, skip_special_tokens=True)
 
-        # Format as OpenAI response
+        # Check for tool calls in the output
+        tool_calls = _parse_tool_calls(completion_text) if tools else []
+
+        if tool_calls:
+            # Strip the <tool_call> blocks from content, keep any preceding text
+            content = re.split(r"<tool_call>", completion_text, maxsplit=1)[0].strip() or None
+            message: dict = {"role": "assistant", "content": content, "tool_calls": tool_calls}
+            finish_reason = "tool_calls"
+        else:
+            message = {"role": "assistant", "content": completion_text}
+            finish_reason = "stop"
+
         return {
             "id": f"chatcmpl-{uuid.uuid4().hex[:8]}",
             "object": "chat.completion",
@@ -108,8 +137,8 @@ class TinkerInferenceServer:
             "choices": [
                 {
                     "index": 0,
-                    "message": {"role": "assistant", "content": completion_text},
-                    "finish_reason": "stop",
+                    "message": message,
+                    "finish_reason": finish_reason,
                 }
             ],
             "usage": {
@@ -118,6 +147,45 @@ class TinkerInferenceServer:
                 "total_tokens": len(prompt_tokens) + len(output_tokens),
             },
         }
+
+
+_TOOL_CALL_RE = re.compile(
+    r"<tool_call>\s*(\{.*?\})\s*</tool_call>", re.DOTALL,
+)
+
+
+def _parse_tool_calls(text: str) -> list[dict]:
+    """Extract Qwen3 ``<tool_call>`` blocks and convert to OpenAI format.
+
+    Qwen3 outputs tool calls as::
+
+        <tool_call>
+        {"name": "execute_bash", "arguments": {"command": "ls"}}
+        </tool_call>
+
+    Returns a list of OpenAI-format tool_call dicts.
+    """
+    tool_calls = []
+    for match in _TOOL_CALL_RE.finditer(text):
+        try:
+            call = json.loads(match.group(1))
+        except json.JSONDecodeError:
+            logger.warning("Failed to parse tool_call JSON: %s", match.group(1))
+            continue
+
+        arguments = call.get("arguments", {})
+        if not isinstance(arguments, str):
+            arguments = json.dumps(arguments)
+
+        tool_calls.append({
+            "id": f"call_{uuid.uuid4().hex[:8]}",
+            "type": "function",
+            "function": {
+                "name": call.get("name", ""),
+                "arguments": arguments,
+            },
+        })
+    return tool_calls
 
 
 def create_handler(server: TinkerInferenceServer):
@@ -135,6 +203,7 @@ def create_handler(server: TinkerInferenceServer):
                         temperature=body.get("temperature", 0.0),
                         max_tokens=body.get("max_tokens", 4096),
                         stop=body.get("stop"),
+                        tools=body.get("tools"),
                     )
                     self.send_response(200)
                     self.send_header("Content-Type", "application/json")
@@ -192,7 +261,7 @@ def main(
     handler = create_handler(server)
     httpd = HTTPServer(("0.0.0.0", port), handler)
     logger.info(f"Tinker proxy listening on http://0.0.0.0:{port}")
-    logger.info(f"Use with: LLM_BASE_URL=http://localhost:{port}/v1 --llm_name 'openai/tinker'")
+    logger.info(f"Use with: LLM_BASE_URL=http://localhost:{port}/v1 --llm_name 'openai/gpt-tinker'")
     httpd.serve_forever()
 
 

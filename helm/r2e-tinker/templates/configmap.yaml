@@ -12,7 +12,7 @@ data:
   R2EGYM_TEMPERATURE: {{ .Values.r2egym.temperature | quote }}
   JOB_TYPE: {{ .Values.job.type | quote }}
   {{- if .Values.proxy.enabled }}
-  LLM_NAME: "openai/tinker"
+  LLM_NAME: "openai/gpt-tinker"
   LLM_BASE_URL: "http://tinker-proxy:8080/v1"
   OPENAI_API_KEY: "sk-placeholder"
   {{- end }}

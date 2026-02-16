@@ -101,7 +101,7 @@ python -m tinker_r2egym.run_eval \
 2. For each task, creates a K8s sandbox pod on `cpu-sandbox` nodes
 3. EKS autoscaler adds more `m5.4xlarge` nodes if capacity is insufficient
 4. Runs the ReAct agent inside each sandbox (up to 40 steps)
-5. The agent calls the Tinker proxy (`openai/tinker` via `LLM_BASE_URL`) for LLM inference
+5. The agent calls the Tinker proxy (`openai/gpt-tinker` via `LLM_BASE_URL`) for LLM inference
 6. Computes reward via test execution
 7. Destroys sandbox pods
 8. Writes trajectory JSONL to `/data/results/` and syncs to S3
