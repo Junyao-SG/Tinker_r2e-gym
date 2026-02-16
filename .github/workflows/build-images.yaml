@@ -16,7 +16,7 @@ on:
 
 env:
   AWS_REGION: us-east-1
-  ECR_REPO: tinker-r2egym
+  ECR_REPO: r2e-tinker
 
 jobs:
   build:

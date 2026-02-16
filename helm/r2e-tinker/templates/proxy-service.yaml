@@ -5,10 +5,10 @@ metadata:
   name: tinker-proxy
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "tinker-r2egym.labels" . | nindent 4 }}
+    {{- include "r2e-tinker.labels" . | nindent 4 }}
 spec:
   selector:
-    {{- include "tinker-r2egym.proxy.selectorLabels" . | nindent 4 }}
+    {{- include "r2e-tinker.proxy.selectorLabels" . | nindent 4 }}
   ports:
     - port: 8080
       targetPort: http

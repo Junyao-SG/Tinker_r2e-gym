@@ -1,12 +1,12 @@
 REGION       ?= us-east-1
 ACCOUNT_ID   ?= $(shell aws sts get-caller-identity --query Account --output text)
 ECR_REGISTRY ?= $(ACCOUNT_ID).dkr.ecr.$(REGION).amazonaws.com
-ECR_REPO     ?= tinker-r2egym
+ECR_REPO     ?= r2e-tinker
 TAG          ?= latest
 R2EGYM_REF   ?= main
-RELEASE      ?= tinker-r2egym
+RELEASE      ?= r2e-tinker
 NAMESPACE    ?= default
-S3_BUCKET    ?= tinker-r2egym-$(shell date +%Y%m%d)
+S3_BUCKET    ?= r2e-tinker-$(shell date +%Y%m%d)
 S3_PREFIX    ?= r2egym-trajectories
 
 .PHONY: build push deploy deploy-training upgrade uninstall logs exec results lint template create-bucket create-ecr
@@ -28,7 +28,7 @@ push:
 
 ## Deploy with Helm (inference mode)
 deploy:
-	helm install $(RELEASE) helm/tinker-r2egym \
+	helm install $(RELEASE) helm/r2e-tinker \
 		--namespace $(NAMESPACE) \
 		--set image.repository=$(ECR_REGISTRY)/$(ECR_REPO) \
 		--set image.tag=$(TAG) \
@@ -37,9 +37,9 @@ deploy:
 
 ## Deploy with Helm (training mode)
 deploy-training:
-	helm install $(RELEASE) helm/tinker-r2egym \
+	helm install $(RELEASE) helm/r2e-tinker \
 		--namespace $(NAMESPACE) \
-		-f helm/tinker-r2egym/values-training.yaml \
+		-f helm/r2e-tinker/values-training.yaml \
 		--set image.repository=$(ECR_REGISTRY)/$(ECR_REPO) \
 		--set image.tag=$(TAG) \
 		--set aws.s3.bucket=$(S3_BUCKET) \
@@ -47,7 +47,7 @@ deploy-training:
 
 ## Upgrade existing release
 upgrade:
-	helm upgrade $(RELEASE) helm/tinker-r2egym \
+	helm upgrade $(RELEASE) helm/r2e-tinker \
 		--namespace $(NAMESPACE) \
 		--set image.repository=$(ECR_REGISTRY)/$(ECR_REPO) \
 		--set image.tag=$(TAG)
@@ -82,11 +82,11 @@ results:
 
 ## Lint Helm chart
 lint:
-	helm lint helm/tinker-r2egym
-	helm lint helm/tinker-r2egym -f helm/tinker-r2egym/values-training.yaml
+	helm lint helm/r2e-tinker
+	helm lint helm/r2e-tinker -f helm/r2e-tinker/values-training.yaml
 
 ## Render Helm templates (dry-run)
 template:
-	helm template $(RELEASE) helm/tinker-r2egym \
-		--set image.repository=test.ecr.io/tinker-r2egym \
+	helm template $(RELEASE) helm/r2e-tinker \
+		--set image.repository=test.ecr.io/r2e-tinker \
 		--set image.tag=test

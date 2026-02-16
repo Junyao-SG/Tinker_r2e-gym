@@ -107,7 +107,7 @@ make deploy-training
 | `sandbox.resources.limits.cpu` | `"4"` | CPU limit per sandbox |
 | `sandbox.resources.limits.memory` | `"8Gi"` | Memory limit per sandbox |
 
-See [values.yaml](helm/tinker-r2egym/values.yaml) for all options.
+See [values.yaml](helm/r2e-tinker/values.yaml) for all options.
 
 ### GRPO training config
 

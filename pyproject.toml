@@ -3,7 +3,7 @@ requires = ["setuptools>=68.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "tinker-r2egym"
+name = "r2e-tinker"
 version = "0.1.0"
 description = "Tinker GRPO training and inference proxy for R2E-Gym"
 requires-python = ">=3.10"

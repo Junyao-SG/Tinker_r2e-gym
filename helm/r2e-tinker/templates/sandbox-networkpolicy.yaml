@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: {{ include "tinker-r2egym.fullname" . }}-sandbox-deny-egress
+  name: {{ include "r2e-tinker.fullname" . }}-sandbox-deny-egress
   namespace: {{ .Values.sandbox.namespace }}
 spec:
   podSelector:

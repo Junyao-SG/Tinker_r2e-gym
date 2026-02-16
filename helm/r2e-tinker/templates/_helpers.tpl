@@ -1,14 +1,14 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "tinker-r2egym.name" -}}
+{{- define "r2e-tinker.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Create a default fully qualified app name.
 */}}
-{{- define "tinker-r2egym.fullname" -}}
+{{- define "r2e-tinker.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -24,21 +24,21 @@ Create a default fully qualified app name.
 {{/*
 Common labels
 */}}
-{{- define "tinker-r2egym.labels" -}}
-helm.sh/chart: {{ include "tinker-r2egym.name" . }}
+{{- define "r2e-tinker.labels" -}}
+helm.sh/chart: {{ include "r2e-tinker.name" . }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
 {{/*
 Selector labels for orchestrator
 */}}
-{{- define "tinker-r2egym.orchestrator.selectorLabels" -}}
-app: {{ include "tinker-r2egym.fullname" . }}-orchestrator
+{{- define "r2e-tinker.orchestrator.selectorLabels" -}}
+app: {{ include "r2e-tinker.fullname" . }}-orchestrator
 {{- end }}
 
 {{/*
 Selector labels for proxy
 */}}
-{{- define "tinker-r2egym.proxy.selectorLabels" -}}
-app: {{ include "tinker-r2egym.fullname" . }}-proxy
+{{- define "r2e-tinker.proxy.selectorLabels" -}}
+app: {{ include "r2e-tinker.fullname" . }}-proxy
 {{- end }}

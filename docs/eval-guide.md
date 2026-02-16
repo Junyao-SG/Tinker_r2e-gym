@@ -15,7 +15,7 @@ eksctl create cluster -f cluster/cluster.yaml
 ```
 
 This provisions:
-- A `tinker-r2egym` cluster in `us-east-1`
+- A `r2e-tinker` cluster in `us-east-1`
 - A `system` node group (1x `m5.large`) for the orchestrator and proxy pods
 - A `cpu-sandbox` node group (0–20 spot instances, c5/m5 family) for sandbox pods, with autoscaling
 
@@ -51,8 +51,8 @@ make deploy-training
 Or manually:
 
 ```bash
-helm install tinker-r2egym helm/tinker-r2egym \
-  --set image.repository=$ECR_REGISTRY/tinker-r2egym \
+helm install r2e-tinker helm/r2e-tinker \
+  --set image.repository=$ECR_REGISTRY/r2e-tinker \
   --set image.tag=latest \
   --set aws.s3.bucket=your-s3-bucket \
   --set aws.s3.prefix=r2egym-trajectories
@@ -110,10 +110,10 @@ python -m tinker_r2egym.run_eval \
 
 ```bash
 # Scale up before a large run
-eksctl scale nodegroup --cluster tinker-r2egym --name cpu-sandbox --nodes 5
+eksctl scale nodegroup --cluster r2e-tinker --name cpu-sandbox --nodes 5
 
 # Scale back down after
-eksctl scale nodegroup --cluster tinker-r2egym --name cpu-sandbox --nodes 0
+eksctl scale nodegroup --cluster r2e-tinker --name cpu-sandbox --nodes 0
 ```
 
 ## 6. Run GRPO Training
@@ -135,20 +135,20 @@ make results S3_BUCKET=your-s3-bucket
 Or via kubectl:
 
 ```bash
-ORCH_POD=$(kubectl get pod -l app=tinker-r2egym-orchestrator -o jsonpath='{.items[0].metadata.name}')
+ORCH_POD=$(kubectl get pod -l app=r2e-tinker-orchestrator -o jsonpath='{.items[0].metadata.name}')
 kubectl cp $ORCH_POD:/data/results/ ./results/
 ```
 
 ## 8. Teardown
 
 ```bash
-helm uninstall tinker-r2egym
-eksctl delete cluster --name tinker-r2egym --region us-east-1
+helm uninstall r2e-tinker
+eksctl delete cluster --name r2e-tinker --region us-east-1
 ```
 
 ## Tuning
 
-Edit `helm/tinker-r2egym/values.yaml` or pass `--set` flags:
+Edit `helm/r2e-tinker/values.yaml` or pass `--set` flags:
 
 | Parameter | Default | What it controls |
 |---|---|---|

@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "tinker-r2egym.fullname" . }}-sandbox
+  name: {{ include "r2e-tinker.fullname" . }}-sandbox
   namespace: {{ .Release.Namespace }}
 data:
   # These env vars are read by R2E-Gym's DockerRuntime (kubernetes backend)

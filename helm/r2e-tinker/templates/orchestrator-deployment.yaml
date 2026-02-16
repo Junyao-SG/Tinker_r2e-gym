@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "tinker-r2egym.fullname" . }}-orchestrator
+  name: {{ include "r2e-tinker.fullname" . }}-orchestrator
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "tinker-r2egym.labels" . | nindent 4 }}
+    {{- include "r2e-tinker.labels" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      {{- include "tinker-r2egym.orchestrator.selectorLabels" . | nindent 6 }}
+      {{- include "r2e-tinker.orchestrator.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "tinker-r2egym.orchestrator.selectorLabels" . | nindent 8 }}
+        {{- include "r2e-tinker.orchestrator.selectorLabels" . | nindent 8 }}
     spec:
       serviceAccountName: {{ .Values.serviceAccount.name }}
       nodeSelector:
@@ -55,6 +55,6 @@ spec:
                   optional: true
           envFrom:
             - configMapRef:
-                name: {{ include "tinker-r2egym.fullname" . }}-sandbox
+                name: {{ include "r2e-tinker.fullname" . }}-sandbox
             - configMapRef:
-                name: {{ include "tinker-r2egym.fullname" . }}-config
+                name: {{ include "r2e-tinker.fullname" . }}-config

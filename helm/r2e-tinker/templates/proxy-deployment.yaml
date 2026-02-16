@@ -2,19 +2,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "tinker-r2egym.fullname" . }}-proxy
+  name: {{ include "r2e-tinker.fullname" . }}-proxy
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "tinker-r2egym.labels" . | nindent 4 }}
+    {{- include "r2e-tinker.labels" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      {{- include "tinker-r2egym.proxy.selectorLabels" . | nindent 6 }}
+      {{- include "r2e-tinker.proxy.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "tinker-r2egym.proxy.selectorLabels" . | nindent 8 }}
+        {{- include "r2e-tinker.proxy.selectorLabels" . | nindent 8 }}
     spec:
       serviceAccountName: {{ .Values.serviceAccount.name }}
       nodeSelector:

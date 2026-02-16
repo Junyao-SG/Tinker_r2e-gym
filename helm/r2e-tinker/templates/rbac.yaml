@@ -13,7 +13,7 @@ metadata:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: {{ include "tinker-r2egym.fullname" . }}
+  name: {{ include "r2e-tinker.fullname" . }}
   namespace: {{ .Release.Namespace }}
 rules:
   - apiGroups: [""]
@@ -23,7 +23,7 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: {{ include "tinker-r2egym.fullname" . }}
+  name: {{ include "r2e-tinker.fullname" . }}
   namespace: {{ .Release.Namespace }}
 subjects:
   - kind: ServiceAccount
@@ -31,5 +31,5 @@ subjects:
     namespace: {{ .Release.Namespace }}
 roleRef:
   kind: Role
-  name: {{ include "tinker-r2egym.fullname" . }}
+  name: {{ include "r2e-tinker.fullname" . }}
   apiGroup: rbac.authorization.k8s.io

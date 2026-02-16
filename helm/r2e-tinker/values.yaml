@@ -1,6 +1,6 @@
 # -- Container image
 image:
-  repository: ""        # REQUIRED: ECR URI (e.g. 123456789.dkr.ecr.us-east-1.amazonaws.com/tinker-r2egym)
+  repository: ""        # REQUIRED: ECR URI (e.g. 123456789.dkr.ecr.us-east-1.amazonaws.com/r2e-tinker)
   tag: "latest"
 
 # -- Service account

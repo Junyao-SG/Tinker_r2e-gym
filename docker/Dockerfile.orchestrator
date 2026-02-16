@@ -25,10 +25,10 @@ ENV VIRTUAL_ENV=/app/r2e-gym/.venv
 ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
 
 # Install this repo's Tinker training code into the venv
-COPY src/ /app/tinker-r2egym/src/
-COPY configs/ /app/tinker-r2egym/configs/
-COPY pyproject.toml /app/tinker-r2egym/
-RUN pip install --no-cache-dir -e /app/tinker-r2egym
+COPY src/ /app/r2e-tinker/src/
+COPY configs/ /app/r2e-tinker/configs/
+COPY pyproject.toml /app/r2e-tinker/
+RUN pip install --no-cache-dir -e /app/r2e-tinker
 
 # Install Tinker SDK into the venv
 RUN pip install --no-cache-dir tinker
