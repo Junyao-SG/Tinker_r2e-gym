@@ -14,6 +14,7 @@ data:
   {{- if .Values.proxy.enabled }}
   LLM_NAME: "openai/tinker"
   LLM_BASE_URL: "http://tinker-proxy:8080/v1"
+  OPENAI_API_KEY: "sk-placeholder"
   {{- end }}
   # S3 config
   AWS_REGION: {{ .Values.aws.region | quote }}

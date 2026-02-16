@@ -42,7 +42,7 @@ tinker:
 sandbox:
   namespace: "default"
   imagePullSecrets: "dockerhub-pro"
-  nodeSelector: '{"role": "cpu-sandbox"}'
+  nodeSelector: '{"karpenter.sh/nodepool": "bigcpu-standby"}'
   resources:
     requests:
       cpu: "2"

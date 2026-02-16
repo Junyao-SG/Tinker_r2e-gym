@@ -54,6 +54,7 @@ managedNodeGroups:
     maxSize: 20
     labels:
       role: cpu-sandbox
+      karpenter.sh/nodepool: bigcpu-standby
     iam:
       withAddonPolicies:
         ebs: true
