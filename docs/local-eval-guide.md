@@ -54,7 +54,6 @@ Run from the R2E-Gym directory (where `src/r2egym/` lives):
 cd R2E-Gym
 
 # Smoke test — 2 tasks
-OPENAI_API_KEY=sk-placeholder \
 LLM_BASE_URL=http://localhost:8080/v1 \
 python src/r2egym/agenthub/run/edit.py runagent_multiple \
   --dataset "R2E-Gym/SWE-Bench-Verified" \
@@ -69,7 +68,6 @@ python src/r2egym/agenthub/run/edit.py runagent_multiple \
   --use_fn_calling False
 
 # Full eval — all 2294 tasks
-OPENAI_API_KEY=sk-placeholder \
 LLM_BASE_URL=http://localhost:8080/v1 \
 python src/r2egym/agenthub/run/edit.py runagent_multiple \
   --dataset "R2E-Gym/SWE-Bench-Verified" \
