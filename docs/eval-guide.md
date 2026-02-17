@@ -25,20 +25,42 @@ Verify:
 kubectl get nodes
 ```
 
-## 2. Build and Push the Image
+## 2. Install Cluster Autoscaler
+
+```bash
+make install-autoscaler
+```
+
+This installs the Kubernetes cluster autoscaler via Helm into `kube-system`. It watches for pending pods on the `cpu-sandbox` node group and automatically scales nodes up (when sandboxes can't be scheduled) and back down (after 5 minutes idle).
+
+Verify:
+
+```bash
+kubectl get pods -n kube-system -l app.kubernetes.io/name=cluster-autoscaler
+```
+
+## 3. Build and Push the Image
 
 ```bash
 make create-ecr
 make build push
 ```
 
-## 3. Create Secrets
+## 4. Create S3 Bucket
+
+```bash
+make create-bucket S3_BUCKET=<your-bucket-name>
+```
+
+This creates the S3 bucket where trajectory results are synced. Note the bucket name — you'll pass it to `make deploy`.
+
+## 5. Create Secrets
 
 ```bash
 make create-secrets
 ```
 
-## 4. Deploy with Helm
+## 6. Deploy with Helm
 
 ```bash
 # Inference mode
@@ -67,7 +89,7 @@ kubectl get pods                   # Orchestrator + proxy pods running
 kubectl get networkpolicy          # Sandbox egress denied
 ```
 
-## 5. Run Evaluation
+## 7. Run Evaluation
 
 Exec into the orchestrator pod:
 
@@ -116,7 +138,7 @@ eksctl scale nodegroup --cluster r2e-tinker --name cpu-sandbox --nodes 5
 eksctl scale nodegroup --cluster r2e-tinker --name cpu-sandbox --nodes 0
 ```
 
-## 6. Run GRPO Training
+## 8. Run GRPO Training
 
 ```bash
 make exec
@@ -126,7 +148,7 @@ python -m tinker_r2egym.tinker_grpo --config_path configs/grpo.yaml
 
 This runs the full GRPO loop: rollout collection via R2E-Gym -> reward computation -> Tinker `forward_backward` -> `optim_step`.
 
-## 7. Retrieve Results
+## 9. Retrieve Results
 
 ```bash
 make results S3_BUCKET=your-s3-bucket
@@ -139,7 +161,7 @@ ORCH_POD=$(kubectl get pod -l app=r2e-tinker-orchestrator -o jsonpath='{.items[0
 kubectl cp $ORCH_POD:/data/results/ ./results/
 ```
 
-## 8. Teardown
+## 10. Teardown
 
 ```bash
 helm uninstall r2e-tinker
