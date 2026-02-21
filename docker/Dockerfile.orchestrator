@@ -20,6 +20,11 @@ RUN pip install --no-cache-dir uv && \
     cd /app/r2e-gym && uv venv && \
     uv sync && uv pip install -e .
 
+# Patch R2E-Gym: add securityContext runAsUser=0 to sandbox pod spec so
+# add_commands can write to /usr/local/bin/ inside the sandbox container.
+COPY patches/ /app/patches/
+RUN python3 /app/patches/k8s_security_context.py
+
 # Activate the venv for all subsequent RUN/CMD/ENTRYPOINT
 ENV VIRTUAL_ENV=/app/r2e-gym/.venv
 ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"

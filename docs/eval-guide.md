@@ -56,6 +56,17 @@ This creates the S3 bucket where trajectory results are synced. Note the bucket 
 
 ## 5. Create Secrets
 
+Create a `.env` file with your credentials:
+
+```bash
+cat > .env <<EOF
+TINKER_API_KEY=your-tinker-key
+HF_TOKEN=your-hf-token
+EOF
+```
+
+Then load it into K8s:
+
 ```bash
 make create-secrets
 ```
@@ -164,9 +175,10 @@ kubectl cp $ORCH_POD:/data/results/ ./results/
 ## 10. Teardown
 
 ```bash
-helm uninstall r2e-tinker
-eksctl delete cluster --name r2e-tinker --region us-east-1
+make teardown
 ```
+
+This uninstalls the Helm release, the cluster autoscaler, and deletes the EKS cluster.
 
 ## Tuning
 
@@ -176,7 +188,7 @@ Edit `helm/r2e-tinker/values.yaml` or pass `--set` flags:
 |---|---|---|
 | `sandbox.resources.limits.cpu` | `"4"` | CPU per sandbox pod |
 | `sandbox.resources.limits.memory` | `"8Gi"` | RAM per sandbox pod |
-| `sandbox.nodeSelector` | `{"role": "cpu-sandbox"}` | Which nodes run sandboxes |
+| `sandbox.nodeSelector` | `{"karpenter.sh/nodepool": "bigcpu-standby"}` | Which nodes run sandboxes |
 
 Edit `cluster/cluster.yaml` for node group sizing:
 

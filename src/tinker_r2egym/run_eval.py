@@ -62,6 +62,10 @@ def main(
     logger.info(f"Eval complete. Syncing {traj_dir} to S3...")
     s3 = S3Sync()
     s3.sync_dir(traj_dir)
+
+    logs_dir = "/app/r2e-gym/run_logs"
+    logger.info(f"Syncing {logs_dir} to S3...")
+    s3.sync_dir(logs_dir)
     logger.info("Done.")
 
 
