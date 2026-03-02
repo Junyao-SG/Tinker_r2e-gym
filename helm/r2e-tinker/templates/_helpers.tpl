@@ -42,3 +42,10 @@ Selector labels for proxy
 {{- define "r2e-tinker.proxy.selectorLabels" -}}
 app: {{ include "r2e-tinker.fullname" . }}-proxy
 {{- end }}
+
+{{/*
+Selector labels for vLLM
+*/}}
+{{- define "r2e-tinker.vllm.selectorLabels" -}}
+app: {{ include "r2e-tinker.fullname" . }}-vllm
+{{- end }}

@@ -1,0 +1,84 @@
+{{- if and .Values.proxy.enabled (eq .Values.proxy.backend "vllm") }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "r2e-tinker.fullname" . }}-vllm
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "r2e-tinker.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "r2e-tinker.vllm.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "r2e-tinker.vllm.selectorLabels" . | nindent 8 }}
+    spec:
+      nodeSelector:
+        {{- toYaml .Values.vllm.nodeSelector | nindent 8 }}
+      tolerations:
+        {{- toYaml .Values.vllm.tolerations | nindent 8 }}
+      containers:
+        - name: vllm
+          image: {{ .Values.vllm.image | quote }}
+          args:
+            - --model
+            - {{ .Values.proxy.model.name | quote }}
+            - --tensor-parallel-size
+            - {{ .Values.vllm.args.tensorParallelSize | quote }}
+            - --max-model-len
+            - {{ .Values.vllm.args.maxModelLen | quote }}
+            - --tool-call-parser
+            - {{ .Values.vllm.args.toolCallParser | quote }}
+            {{- if .Values.vllm.args.trustRemoteCode }}
+            - --trust-remote-code
+            {{- end }}
+            {{- range .Values.vllm.args.extraArgs }}
+            - {{ . | quote }}
+            {{- end }}
+          ports:
+            - containerPort: 8000
+              name: http
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+            failureThreshold: 60
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 5
+          env:
+            - name: VLLM_WORKER_MULTIPROC_METHOD
+              value: "spawn"
+            - name: HF_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: tinker-credentials
+                  key: HF_TOKEN
+                  optional: true
+          resources:
+            {{- toYaml .Values.vllm.resources | nindent 12 }}
+          volumeMounts:
+            - name: shm
+              mountPath: /dev/shm
+            - name: model-cache
+              mountPath: /root/.cache/huggingface
+      volumes:
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 16Gi
+        - name: model-cache
+          emptyDir:
+            sizeLimit: 100Gi
+{{- end }}

@@ -11,7 +11,7 @@ S3_PREFIX    ?= r2egym-trajectories
 
 CLUSTER      ?= r2e-tinker
 
-.PHONY: create-cluster create-secrets build push deploy deploy-training upgrade uninstall logs exec results lint template create-bucket create-ecr install-autoscaler teardown
+.PHONY: create-cluster create-secrets build push deploy deploy-training deploy-vllm upgrade uninstall logs exec results lint template template-vllm create-bucket create-ecr install-autoscaler install-nvidia-plugin add-gpu-nodes teardown
 
 ## Create EKS cluster
 create-cluster:
@@ -50,6 +50,16 @@ deploy-training:
 	helm install $(RELEASE) helm/r2e-tinker \
 		--namespace $(NAMESPACE) \
 		-f helm/r2e-tinker/values-training.yaml \
+		--set image.repository=$(ECR_REGISTRY)/$(ECR_REPO) \
+		--set image.tag=$(TAG) \
+		--set aws.s3.bucket=$(S3_BUCKET) \
+		--set aws.s3.prefix=$(S3_PREFIX)
+
+## Deploy with Helm (vLLM self-hosted inference)
+deploy-vllm:
+	helm install $(RELEASE) helm/r2e-tinker \
+		--namespace $(NAMESPACE) \
+		-f helm/r2e-tinker/values-vllm.yaml \
 		--set image.repository=$(ECR_REGISTRY)/$(ECR_REPO) \
 		--set image.tag=$(TAG) \
 		--set aws.s3.bucket=$(S3_BUCKET) \
@@ -110,13 +120,35 @@ teardown:
 	helm uninstall cluster-autoscaler --namespace kube-system
 	eksctl delete cluster --name $(CLUSTER) --region $(REGION)
 
+## Add GPU node group (run separately if cluster already exists)
+add-gpu-nodes:
+	eksctl create nodegroup --config-file=cluster/cluster.yaml --include=gpu-inference
+
+## Install NVIDIA device plugin via Helm (fallback if EKS addon unavailable)
+install-nvidia-plugin:
+	helm repo add nvdp https://nvidia.github.io/k8s-device-plugin 2>/dev/null || true
+	helm repo update nvdp
+	helm install nvidia-device-plugin nvdp/nvidia-device-plugin \
+		--namespace kube-system \
+		--set tolerations[0].key=nvidia.com/gpu \
+		--set tolerations[0].operator=Exists \
+		--set tolerations[0].effect=NoSchedule
+
 ## Lint Helm chart
 lint:
 	helm lint helm/r2e-tinker
 	helm lint helm/r2e-tinker -f helm/r2e-tinker/values-training.yaml
+	helm lint helm/r2e-tinker -f helm/r2e-tinker/values-vllm.yaml
 
 ## Render Helm templates (dry-run)
 template:
 	helm template $(RELEASE) helm/r2e-tinker \
+		--set image.repository=test.ecr.io/r2e-tinker \
+		--set image.tag=test
+
+## Render Helm templates for vLLM mode (dry-run)
+template-vllm:
+	helm template $(RELEASE) helm/r2e-tinker \
+		-f helm/r2e-tinker/values-vllm.yaml \
 		--set image.repository=test.ecr.io/r2e-tinker \
 		--set image.tag=test

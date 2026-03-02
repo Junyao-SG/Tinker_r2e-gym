@@ -16,9 +16,36 @@ job:
 # -- Tinker inference proxy (optional)
 proxy:
   enabled: true
+  backend: "tinker"          # "tinker" (default) or "vllm"
   model:
     name: "Qwen/Qwen3-30B-A3B"
     weightsPath: ""
+
+# -- vLLM self-hosted inference (used when proxy.backend == "vllm")
+vllm:
+  image: "vllm/vllm-openai:v0.8.5"
+  args:
+    tensorParallelSize: 4
+    maxModelLen: 32768
+    toolCallParser: "hermes"
+    trustRemoteCode: true
+    extraArgs: []
+  resources:
+    requests:
+      cpu: "8"
+      memory: "48Gi"
+      nvidia.com/gpu: "4"
+    limits:
+      cpu: "16"
+      memory: "96Gi"
+      nvidia.com/gpu: "4"
+  nodeSelector:
+    role: gpu-inference
+  tolerations:
+    - key: nvidia.com/gpu
+      operator: Equal
+      value: "true"
+      effect: NoSchedule
 
 # -- R2E-Gym agent config
 r2egym:

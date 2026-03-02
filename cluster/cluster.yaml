@@ -42,6 +42,23 @@ managedNodeGroups:
         ebs: true
         efs: true
 
+  - name: gpu-inference
+    instanceType: g6.12xlarge
+    amiFamily: AmazonLinux2023
+    desiredCapacity: 0
+    minSize: 0
+    maxSize: 2
+    volumeSize: 200
+    labels:
+      role: gpu-inference
+    taints:
+      - key: nvidia.com/gpu
+        value: "true"
+        effect: NoSchedule
+    iam:
+      withAddonPolicies:
+        ebs: true
+
   - name: cpu-sandbox
     instanceTypes:
       - c5.2xlarge

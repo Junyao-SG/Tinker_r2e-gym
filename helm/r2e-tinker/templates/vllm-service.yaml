@@ -1,16 +1,16 @@
-{{- if and .Values.proxy.enabled (ne .Values.proxy.backend "vllm") }}
+{{- if and .Values.proxy.enabled (eq .Values.proxy.backend "vllm") }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: tinker-proxy
+  name: vllm-inference
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "r2e-tinker.labels" . | nindent 4 }}
 spec:
   selector:
-    {{- include "r2e-tinker.proxy.selectorLabels" . | nindent 4 }}
+    {{- include "r2e-tinker.vllm.selectorLabels" . | nindent 4 }}
   ports:
-    - port: 8080
+    - port: 8000
       targetPort: http
       protocol: TCP
       name: http
