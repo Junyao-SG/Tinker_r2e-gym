@@ -5,7 +5,7 @@ autoModeConfig:
   enabled: false
 
 metadata:
-  name: r2e-tinker
+  name: r2e-eks
   region: us-east-1
   version: "1.34"
 

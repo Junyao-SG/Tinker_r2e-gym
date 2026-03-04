@@ -1,17 +1,20 @@
 REGION       ?= us-east-1
 ACCOUNT_ID   ?= $(shell aws sts get-caller-identity --query Account --output text)
 ECR_REGISTRY ?= $(ACCOUNT_ID).dkr.ecr.$(REGION).amazonaws.com
-ECR_REPO     ?= r2e-tinker
+ECR_REPO     ?= r2e-eks
 TAG          ?= latest
 R2EGYM_REF   ?= main
-RELEASE      ?= r2e-tinker
+RELEASE      ?= r2e-eks
 NAMESPACE    ?= default
-S3_BUCKET    ?= r2e-tinker-$(shell date +%Y%m%d)
+S3_BUCKET    ?= r2e-eks-$(shell date +%Y%m%d)
 S3_PREFIX    ?= r2egym-trajectories
 
-CLUSTER      ?= r2e-tinker
+CLUSTER      ?= r2e-eks
 
-.PHONY: create-cluster create-secrets build push deploy deploy-training deploy-vllm upgrade uninstall logs exec results lint template template-vllm create-bucket create-ecr install-autoscaler install-nvidia-plugin add-gpu-nodes teardown
+# MODE: eval (default, vLLM) | training | tinker
+MODE         ?= eval
+
+.PHONY: create-cluster create-secrets build push deploy upgrade uninstall logs exec results lint template create-bucket create-ecr install-autoscaler install-nvidia-plugin add-gpu-nodes teardown
 
 ## Create EKS cluster
 create-cluster:
@@ -36,30 +39,12 @@ push:
 	aws ecr get-login-password --region $(REGION) | docker login --username AWS --password-stdin $(ECR_REGISTRY)
 	docker push $(ECR_REGISTRY)/$(ECR_REPO):$(TAG)
 
-## Deploy with Helm (inference mode)
+## Deploy with Helm (use MODE=eval|training|tinker)
 deploy:
-	helm install $(RELEASE) helm/r2e-tinker \
+	helm install $(RELEASE) helm/r2e-eks \
 		--namespace $(NAMESPACE) \
-		--set image.repository=$(ECR_REGISTRY)/$(ECR_REPO) \
-		--set image.tag=$(TAG) \
-		--set aws.s3.bucket=$(S3_BUCKET) \
-		--set aws.s3.prefix=$(S3_PREFIX)
-
-## Deploy with Helm (training mode)
-deploy-training:
-	helm install $(RELEASE) helm/r2e-tinker \
-		--namespace $(NAMESPACE) \
-		-f helm/r2e-tinker/values-training.yaml \
-		--set image.repository=$(ECR_REGISTRY)/$(ECR_REPO) \
-		--set image.tag=$(TAG) \
-		--set aws.s3.bucket=$(S3_BUCKET) \
-		--set aws.s3.prefix=$(S3_PREFIX)
-
-## Deploy with Helm (vLLM self-hosted inference)
-deploy-vllm:
-	helm install $(RELEASE) helm/r2e-tinker \
-		--namespace $(NAMESPACE) \
-		-f helm/r2e-tinker/values-vllm.yaml \
+		$(if $(filter training,$(MODE)),-f helm/r2e-eks/values-training.yaml) \
+		$(if $(filter tinker,$(MODE)),-f helm/r2e-eks/values-tinker.yaml) \
 		--set image.repository=$(ECR_REGISTRY)/$(ECR_REPO) \
 		--set image.tag=$(TAG) \
 		--set aws.s3.bucket=$(S3_BUCKET) \
@@ -67,8 +52,10 @@ deploy-vllm:
 
 ## Upgrade existing release
 upgrade:
-	helm upgrade $(RELEASE) helm/r2e-tinker \
+	helm upgrade $(RELEASE) helm/r2e-eks \
 		--namespace $(NAMESPACE) \
+		$(if $(filter training,$(MODE)),-f helm/r2e-eks/values-training.yaml) \
+		$(if $(filter tinker,$(MODE)),-f helm/r2e-eks/values-tinker.yaml) \
 		--set image.repository=$(ECR_REGISTRY)/$(ECR_REPO) \
 		--set image.tag=$(TAG)
 
@@ -136,19 +123,14 @@ install-nvidia-plugin:
 
 ## Lint Helm chart
 lint:
-	helm lint helm/r2e-tinker
-	helm lint helm/r2e-tinker -f helm/r2e-tinker/values-training.yaml
-	helm lint helm/r2e-tinker -f helm/r2e-tinker/values-vllm.yaml
+	helm lint helm/r2e-eks
+	helm lint helm/r2e-eks -f helm/r2e-eks/values-training.yaml
+	helm lint helm/r2e-eks -f helm/r2e-eks/values-tinker.yaml
 
-## Render Helm templates (dry-run)
+## Render Helm templates (dry-run, use MODE=eval|training|tinker)
 template:
-	helm template $(RELEASE) helm/r2e-tinker \
-		--set image.repository=test.ecr.io/r2e-tinker \
-		--set image.tag=test
-
-## Render Helm templates for vLLM mode (dry-run)
-template-vllm:
-	helm template $(RELEASE) helm/r2e-tinker \
-		-f helm/r2e-tinker/values-vllm.yaml \
-		--set image.repository=test.ecr.io/r2e-tinker \
+	helm template $(RELEASE) helm/r2e-eks \
+		$(if $(filter training,$(MODE)),-f helm/r2e-eks/values-training.yaml) \
+		$(if $(filter tinker,$(MODE)),-f helm/r2e-eks/values-tinker.yaml) \
+		--set image.repository=test.ecr.io/r2e-eks \
 		--set image.tag=test

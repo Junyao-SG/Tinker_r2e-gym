@@ -1,0 +1,3 @@
+# Overrides to use the Tinker API backend instead of vLLM
+proxy:
+  backend: "tinker"

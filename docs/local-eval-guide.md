@@ -36,10 +36,10 @@ R2E-Gym uses LiteLLM internally (OpenAI-compatible). The proxy bridges Tinker's 
 
 ```bash
 # Serve a base model
-python -m tinker_r2egym.tinker_proxy --model_name "Qwen/Qwen3-30B-A3B"
+python -m r2e_eks.inference.proxy --model_name "Qwen/Qwen3-30B-A3B"
 
 # Or serve a fine-tuned checkpoint after GRPO training
-python -m tinker_r2egym.tinker_proxy \
+python -m r2e_eks.inference.proxy \
   --model_name "Qwen/Qwen3-30B-A3B" \
   --weights_path "tinker://run-id/weights/checkpoint-000050"
 ```

@@ -5,10 +5,10 @@ metadata:
   name: vllm-inference
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "r2e-tinker.labels" . | nindent 4 }}
+    {{- include "r2e-eks.labels" . | nindent 4 }}
 spec:
   selector:
-    {{- include "r2e-tinker.vllm.selectorLabels" . | nindent 4 }}
+    {{- include "r2e-eks.vllm.selectorLabels" . | nindent 4 }}
   ports:
     - port: 8000
       targetPort: http

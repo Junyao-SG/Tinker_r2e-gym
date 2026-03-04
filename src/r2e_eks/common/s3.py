@@ -6,7 +6,7 @@ Reads S3_BUCKET, S3_PREFIX, and AWS_REGION from environment variables
 (no explicit keys needed when running on EKS with the r2egym-sa service account).
 
 Usage:
-    from tinker_r2egym.s3_sync import S3Sync
+    from r2e_eks.common.s3 import S3Sync
 
     s3 = S3Sync()  # reads config from env vars
     s3.upload_file("/data/training/metrics.jsonl")

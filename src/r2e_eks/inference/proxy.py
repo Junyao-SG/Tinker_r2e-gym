@@ -10,10 +10,10 @@ from model output back into OpenAI ``tool_calls`` response format.
 
 Usage:
     # Serve base model
-    python -m tinker_r2egym.tinker_proxy --model_name "Qwen/Qwen3-30B-A3B"
+    python -m r2e_eks.inference.proxy --model_name "Qwen/Qwen3-30B-A3B"
 
     # Serve fine-tuned checkpoint
-    python -m tinker_r2egym.tinker_proxy --model_name "Qwen/Qwen3-30B-A3B" \
+    python -m r2e_eks.inference.proxy --model_name "Qwen/Qwen3-30B-A3B" \
         --weights_path "tinker://run-id/weights/checkpoint-000050"
 
     # Then run R2E-Gym with:

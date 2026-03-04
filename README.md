@@ -1,20 +1,23 @@
-# Tinker_r2e-gym
+# R2E-EKS
 
-R2E-Gym on EKS with Tinker GRPO training. Runs SWE-bench evaluation and RL training for code agents using [R2E-Gym](https://github.com/R2E-Gym/R2E-Gym) as the environment and [Tinker](https://www.thinkingmachines.ai/) for model training/inference.
+R2E-Gym on EKS with GRPO training. Runs SWE-bench evaluation and RL training for code agents using [R2E-Gym](https://github.com/R2E-Gym/R2E-Gym) as the environment and [Tinker](https://www.thinkingmachines.ai/) or vLLM for model inference/training.
 
 ## Architecture
 
 ```
 EKS Cluster
 ├── System Node Group (m5.xlarge, 1–3)
-│   ├── Orchestrator Pod — R2E-Gym + Tinker training code
-│   └── Tinker Proxy Pod — OpenAI-compatible API adapter for Tinker SDK
+│   ├── Orchestrator Pod — R2E-Gym + training/eval code
+│   └── Inference Pod — vLLM (default) or Tinker proxy
+│
+├── GPU Node Group (g5.12xlarge, optional)
+│   └── vLLM inference pod (self-hosted GPU inference)
 │
 └── Sandbox Node Group (m5.4xlarge, 0–20)
     └── Ephemeral sandbox pods (created/deleted by orchestrator via K8s API)
 ```
 
-A single Docker image contains both upstream R2E-Gym and this repo's Tinker code. The orchestrator pod runs `sleep infinity` and you exec in to launch jobs. The proxy pod runs the same image with a different entrypoint (`tinker_r2egym.tinker_proxy`), serving Tinker models via an OpenAI-compatible `/v1/chat/completions` endpoint.
+A single Docker image contains both upstream R2E-Gym and this repo's code. The orchestrator pod runs `sleep infinity` and you exec in to launch jobs. The inference pod serves models via an OpenAI-compatible `/v1/chat/completions` endpoint (vLLM by default, or Tinker proxy with `MODE=tinker`).
 
 ## Guides
 
@@ -32,8 +35,9 @@ A single Docker image contains both upstream R2E-Gym and this repo's Tinker code
 | `make create-secrets` | Create K8s secrets from `.env` |
 | `make build` | Build Docker image |
 | `make push` | Push to ECR |
-| `make deploy` | Helm install (inference) |
-| `make deploy-training` | Helm install (training with GRPO overrides) |
+| `make deploy` | Helm install (default: vLLM eval) |
+| `make deploy MODE=training` | Helm install (training with GRPO overrides) |
+| `make deploy MODE=tinker` | Helm install (Tinker API backend) |
 | `make upgrade` | Helm upgrade |
 | `make uninstall` | Helm uninstall |
 | `make logs` | Tail orchestrator logs |

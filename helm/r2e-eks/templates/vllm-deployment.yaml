@@ -2,19 +2,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "r2e-tinker.fullname" . }}-vllm
+  name: {{ include "r2e-eks.fullname" . }}-vllm
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "r2e-tinker.labels" . | nindent 4 }}
+    {{- include "r2e-eks.labels" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      {{- include "r2e-tinker.vllm.selectorLabels" . | nindent 6 }}
+      {{- include "r2e-eks.vllm.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "r2e-tinker.vllm.selectorLabels" . | nindent 8 }}
+        {{- include "r2e-eks.vllm.selectorLabels" . | nindent 8 }}
     spec:
       nodeSelector:
         {{- toYaml .Values.vllm.nodeSelector | nindent 8 }}

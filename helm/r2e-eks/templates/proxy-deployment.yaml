@@ -2,19 +2,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "r2e-tinker.fullname" . }}-proxy
+  name: {{ include "r2e-eks.fullname" . }}-proxy
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "r2e-tinker.labels" . | nindent 4 }}
+    {{- include "r2e-eks.labels" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      {{- include "r2e-tinker.proxy.selectorLabels" . | nindent 6 }}
+      {{- include "r2e-eks.proxy.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "r2e-tinker.proxy.selectorLabels" . | nindent 8 }}
+        {{- include "r2e-eks.proxy.selectorLabels" . | nindent 8 }}
     spec:
       serviceAccountName: {{ .Values.serviceAccount.name }}
       nodeSelector:
@@ -26,7 +26,7 @@ spec:
           command:
             - python
             - -m
-            - tinker_r2egym.tinker_proxy
+            - r2e_eks.inference.proxy
             - --model_name
             - {{ .Values.proxy.model.name | quote }}
             {{- if .Values.proxy.model.weightsPath }}

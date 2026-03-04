@@ -1,6 +1,6 @@
 # -- Container image
 image:
-  repository: ""        # REQUIRED: ECR URI (e.g. 123456789.dkr.ecr.us-east-1.amazonaws.com/r2e-tinker)
+  repository: ""        # REQUIRED: ECR URI (e.g. 123456789.dkr.ecr.us-east-1.amazonaws.com/r2e-eks)
   tag: "latest"
 
 # -- Service account
@@ -13,10 +13,10 @@ serviceAccount:
 job:
   type: "inference"
 
-# -- Tinker inference proxy (optional)
+# -- Inference proxy (optional)
 proxy:
   enabled: true
-  backend: "tinker"          # "tinker" (default) or "vllm"
+  backend: "vllm"          # "vllm" (default) or "tinker"
   model:
     name: "Qwen/Qwen3-30B-A3B"
     weightsPath: ""
@@ -56,9 +56,8 @@ r2egym:
   maxSteps: 40
   temperature: 0.2
 
-# -- Tinker GRPO training config
-tinker:
-  model: "Qwen/Qwen3-30B-A3B"
+# -- GRPO training config
+training:
   grpo:
     learningRate: 1.0e-6
     groupSize: 4

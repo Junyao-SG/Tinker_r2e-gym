@@ -4,7 +4,7 @@
 __pycache__
 /cluster
 /helm
-/scripts
 /docs
 /.github
 /.venv
+/.conda

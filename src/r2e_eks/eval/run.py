@@ -2,7 +2,7 @@
 Wrapper around R2E-Gym's runagent_multiple that syncs results to S3.
 
 Usage:
-    python -m tinker_r2egym.run_eval \
+    python -m r2e_eks.eval.run \
         --dataset "R2E-Gym/SWE-Bench-Verified" \
         --split test \
         --k 5 \
@@ -14,10 +14,9 @@ Usage:
 from __future__ import annotations
 
 import logging
-import sys
 
 from r2egym.agenthub.run.edit import runagent_multiple
-from tinker_r2egym.s3_sync import S3Sync
+from r2e_eks.common.s3 import S3Sync
 
 logger = logging.getLogger(__name__)
 

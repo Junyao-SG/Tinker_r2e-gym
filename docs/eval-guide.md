@@ -15,7 +15,7 @@ make create-cluster
 ```
 
 This provisions:
-- A `r2e-tinker` cluster in `us-east-1`
+- A `r2e-eks` cluster in `us-east-1`
 - A `system` node group (1x `m5.large`) for the orchestrator and proxy pods
 - A `cpu-sandbox` node group (0–20 spot instances, c5/m5 family) for sandbox pods, with autoscaling
 
@@ -78,14 +78,14 @@ make create-secrets
 make deploy
 
 # Or training mode (higher temperature, more workers)
-make deploy-training
+make deploy MODE=training
 ```
 
 Or manually:
 
 ```bash
-helm install r2e-tinker helm/r2e-tinker \
-  --set image.repository=$ECR_REGISTRY/r2e-tinker \
+helm install r2e-eks helm/r2e-eks \
+  --set image.repository=$ECR_REGISTRY/r2e-eks \
   --set image.tag=latest \
   --set aws.s3.bucket=your-s3-bucket \
   --set aws.s3.prefix=r2egym-trajectories
@@ -108,7 +108,7 @@ Exec into the orchestrator pod:
 make exec
 
 # Smoke test — 5 tasks
-python -m tinker_r2egym.run_eval \
+python -m r2e_eks.eval.run \
   --dataset "R2E-Gym/SWE-Bench-Verified" \
   --split test \
   --k 5 \
@@ -117,7 +117,7 @@ python -m tinker_r2egym.run_eval \
   --traj_dir /data/results
 
 # Full eval (all tasks)
-python -m tinker_r2egym.run_eval \
+python -m r2e_eks.eval.run \
   --dataset "R2E-Gym/SWE-Bench-Verified" \
   --split test \
   --k 2294 \
@@ -143,10 +143,10 @@ python -m tinker_r2egym.run_eval \
 
 ```bash
 # Scale up before a large run
-eksctl scale nodegroup --cluster r2e-tinker --name cpu-sandbox --nodes 5
+eksctl scale nodegroup --cluster r2e-eks --name cpu-sandbox --nodes 5
 
 # Scale back down after
-eksctl scale nodegroup --cluster r2e-tinker --name cpu-sandbox --nodes 0
+eksctl scale nodegroup --cluster r2e-eks --name cpu-sandbox --nodes 0
 ```
 
 ## 8. Run GRPO Training
@@ -154,7 +154,7 @@ eksctl scale nodegroup --cluster r2e-tinker --name cpu-sandbox --nodes 0
 ```bash
 make exec
 
-python -m tinker_r2egym.tinker_grpo --config_path configs/grpo.yaml
+python -m r2e_eks.training.grpo
 ```
 
 This runs the full GRPO loop: rollout collection via R2E-Gym -> reward computation -> Tinker `forward_backward` -> `optim_step`.
@@ -168,7 +168,7 @@ make results S3_BUCKET=your-s3-bucket
 Or via kubectl:
 
 ```bash
-ORCH_POD=$(kubectl get pod -l app=r2e-tinker-orchestrator -o jsonpath='{.items[0].metadata.name}')
+ORCH_POD=$(kubectl get pod -l app=r2e-eks-orchestrator -o jsonpath='{.items[0].metadata.name}')
 kubectl cp $ORCH_POD:/data/results/ ./results/
 ```
 
@@ -182,7 +182,7 @@ This uninstalls the Helm release, the cluster autoscaler, and deletes the EKS cl
 
 ## Tuning
 
-Edit `helm/r2e-tinker/values.yaml` or pass `--set` flags:
+Edit `helm/r2e-eks/values.yaml` or pass `--set` flags:
 
 | Parameter | Default | What it controls |
 |---|---|---|

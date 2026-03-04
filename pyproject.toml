@@ -3,9 +3,9 @@ requires = ["setuptools>=68.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "r2e-tinker"
+name = "r2e-eks"
 version = "0.1.0"
-description = "Tinker GRPO training and inference proxy for R2E-Gym"
+description = "R2E-Gym on EKS — evaluation and training runner"
 requires-python = ">=3.10"
 dependencies = [
     "tinker",
@@ -18,9 +18,9 @@ dependencies = [
 ]
 
 [project.scripts]
-tinker-grpo = "tinker_r2egym.tinker_grpo:main"
-tinker-proxy = "tinker_r2egym.tinker_proxy:main"
-tinker-eval = "tinker_r2egym.run_eval:main"
+r2e-train = "r2e_eks.training.grpo:main"
+r2e-proxy = "r2e_eks.inference.proxy:main"
+r2e-eval  = "r2e_eks.eval.run:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

@@ -1,5 +1,5 @@
 """
-Tinker GRPO training loop for SWE agents.
+GRPO training loop for SWE agents.
 
 Uses R2E-Gym for environment rollouts (agent loop, sandbox management, reward computation)
 and Tinker API for model training (forward_backward, optim_step, sampling).
@@ -10,8 +10,7 @@ GRPO (Group Relative Policy Optimization):
 - Train on trajectories weighted by their advantages
 
 Usage:
-    python -m tinker_r2egym.tinker_grpo \
-        --config configs/grpo.yaml
+    python -m r2e_eks.training.grpo
 """
 
 from __future__ import annotations
@@ -25,7 +24,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-import yaml
 import tinker
 import tinker.types as types
 from datasets import load_dataset
@@ -33,59 +31,57 @@ from transformers import AutoTokenizer
 
 from r2egym.agenthub.run.edit import runagent
 from r2egym.agenthub.trajectory import Trajectory
-from tinker_r2egym.s3_sync import S3Sync
+from r2e_eks.common.s3 import S3Sync
 
 logger = logging.getLogger(__name__)
 
 
+def _env(key: str, default: Any = None, cast: type = str) -> Any:
+    """Read an env var with optional type casting."""
+    val = os.environ.get(key, default)
+    if val is None:
+        return None
+    return cast(val)
+
+
 @dataclass
 class GRPOConfig:
-    """Configuration for GRPO training with Tinker."""
+    """Configuration for GRPO training.
+
+    All values are read from environment variables (injected via Helm ConfigMap).
+    Dataclass defaults serve as fallbacks.
+    """
 
     # Model
-    model_name: str = "Qwen/Qwen3-30B-A3B"
-    lora_rank: int = 32
-    lora_alpha: int = 64
+    model_name: str = field(default_factory=lambda: _env("GRPO_MODEL_NAME", "Qwen/Qwen3-30B-A3B"))
+    lora_rank: int = field(default_factory=lambda: _env("GRPO_LORA_RANK", 32, int))
+    lora_alpha: int = field(default_factory=lambda: _env("GRPO_LORA_ALPHA", 64, int))
 
     # Training
-    learning_rate: float = 2e-5
-    num_steps: int = 1000
-    group_size: int = 10
-    batch_size: int = 8
-    temperature: float = 1.0
-    kl_coeff: float = 0.01
+    learning_rate: float = field(default_factory=lambda: _env("GRPO_LEARNING_RATE", 2e-5, float))
+    num_steps: int = field(default_factory=lambda: _env("GRPO_NUM_STEPS", 1000, int))
+    group_size: int = field(default_factory=lambda: _env("GRPO_GROUP_SIZE", 10, int))
+    batch_size: int = field(default_factory=lambda: _env("GRPO_BATCH_SIZE", 8, int))
+    temperature: float = field(default_factory=lambda: _env("R2EGYM_TEMPERATURE", 1.0, float))
+    kl_coeff: float = field(default_factory=lambda: _env("GRPO_KL_COEFF", 0.01, float))
 
     # Rollout
-    dataset: str = "R2E-Gym/R2E-Gym-Lite"
-    split: str = "train"
-    max_steps: int = 40
-    max_workers: int = 20
-    backend: str = "kubernetes"
-    scaffold: str = "r2egym"
-    use_fn_calling: bool = True  # Tinker proxy translates OpenAI tool calls to Qwen3 native format
+    dataset: str = field(default_factory=lambda: _env("R2EGYM_DATASET", "R2E-Gym/R2E-Gym-Lite"))
+    split: str = field(default_factory=lambda: _env("R2EGYM_SPLIT", "train"))
+    max_steps: int = field(default_factory=lambda: _env("R2EGYM_MAX_STEPS", 40, int))
+    max_workers: int = field(default_factory=lambda: _env("R2EGYM_MAX_WORKERS", 20, int))
+    backend: str = field(default_factory=lambda: _env("R2EGYM_BACKEND", "kubernetes"))
+    scaffold: str = field(default_factory=lambda: _env("R2EGYM_SCAFFOLD", "r2egym"))
+    use_fn_calling: bool = True
 
     # Output
-    log_dir: str = "/data/training/"
-    save_every: int = 50
+    log_dir: str = field(default_factory=lambda: _env("GRPO_LOG_DIR", "/data/training/"))
+    save_every: int = field(default_factory=lambda: _env("GRPO_CHECKPOINT_EVERY", 50, int))
     eval_every: int = 0
 
     # Wandb
-    wandb_project: str = ""
-    wandb_run_name: str = ""
-
-    @classmethod
-    def from_yaml(cls, path: str) -> GRPOConfig:
-        with open(path) as f:
-            raw = yaml.safe_load(f)
-        # Flatten nested sections into flat kwargs
-        kwargs = {}
-        for section in raw.values():
-            if isinstance(section, dict):
-                kwargs.update(section)
-            else:
-                kwargs.update(raw)
-                break
-        return cls(**{k: v for k, v in kwargs.items() if k in cls.__dataclass_fields__})
+    wandb_project: str = field(default_factory=lambda: _env("WANDB_PROJECT", ""))
+    wandb_run_name: str = field(default_factory=lambda: _env("WANDB_RUN_NAME", ""))
 
 
 def collect_rollouts(
@@ -341,20 +337,15 @@ async def async_main(config: GRPOConfig):
     logger.info("Training complete")
 
 
-def main(config_path: str = "configs/grpo.yaml", dry_run: bool = False):
+def main():
     """Entry point for GRPO training."""
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
 
-    config = GRPOConfig.from_yaml(config_path)
+    config = GRPOConfig()
     logger.info(f"Config: {config}")
-
-    if dry_run:
-        logger.info("Dry run — config loaded successfully, exiting")
-        return
 
     asyncio.run(async_main(config))
 
 
 if __name__ == "__main__":
-    import fire
-    fire.Fire(main)
+    main()

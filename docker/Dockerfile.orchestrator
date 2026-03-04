@@ -22,18 +22,17 @@ RUN pip install --no-cache-dir uv && \
 
 # Patch R2E-Gym: add securityContext runAsUser=0 to sandbox pod spec so
 # add_commands can write to /usr/local/bin/ inside the sandbox container.
-COPY patches/ /app/patches/
+COPY docker/patches/ /app/patches/
 RUN python3 /app/patches/k8s_security_context.py
 
 # Activate the venv for all subsequent RUN/CMD/ENTRYPOINT
 ENV VIRTUAL_ENV=/app/r2e-gym/.venv
 ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
 
-# Install this repo's Tinker training code into the venv
-COPY src/ /app/r2e-tinker/src/
-COPY configs/ /app/r2e-tinker/configs/
-COPY pyproject.toml /app/r2e-tinker/
-RUN uv pip install --no-cache -e /app/r2e-tinker
+# Install this repo's training/eval code into the venv
+COPY src/ /app/r2e-eks/src/
+COPY pyproject.toml /app/r2e-eks/
+RUN uv pip install --no-cache -e /app/r2e-eks
 
 # Install Tinker SDK into the venv
 RUN uv pip install --no-cache tinker
